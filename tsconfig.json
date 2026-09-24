@@ -3,8 +3,6 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    // Point at the library sources: the app and its tests use the library without building it first.
-    // `npm run build:lib` still produces the publishable package in dist/carousel.
     "paths": {
       "@cosmos-stories/carousel": ["./projects/carousel/src/public-api.ts"],
       "@cosmos-stories/carousel/core": ["./projects/carousel/core/src/public-api.ts"]

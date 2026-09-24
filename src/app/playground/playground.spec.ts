@@ -1,8 +1,9 @@
-import type { ComponentFixture } from '@angular/core/testing';
-import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
-import { queryRequired } from '../../testing/dom';
-import { Playground } from './playground';
+import type {ComponentFixture} from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing';
+import {provideRouter} from '@angular/router';
+
+import {queryRequired} from '../../testing/dom';
+import {Playground} from './playground';
 
 describe('Playground', () => {
   let fixture: ComponentFixture<Playground>;
@@ -11,7 +12,7 @@ describe('Playground', () => {
 
   beforeEach(async () => {
     vi.useFakeTimers();
-    TestBed.configureTestingModule({ providers: [provideRouter([])] });
+    TestBed.configureTestingModule({providers: [provideRouter([])]});
     fixture = TestBed.createComponent(Playground);
     playground = fixture.componentInstance;
     element = fixture.nativeElement as HTMLElement;
@@ -37,7 +38,7 @@ describe('Playground', () => {
         '    <app-planet-card [planet]="planet" />',
         '  </ng-template>',
         '</ui-carousel>',
-      ].join('\n'),
+      ].join('\n')
     );
   });
 

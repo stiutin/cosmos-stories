@@ -1,22 +1,22 @@
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { TestBed } from '@angular/core/testing';
-import { provideRouter, Router, withComponentInputBinding } from '@angular/router';
-import { RouterTestingHarness } from '@angular/router/testing';
-import { routes } from '../app.routes';
-import { ApodService } from '../data/apod/apod.service';
-import { fakeApodService } from '../data/apod/apod.service.fake';
-import { makeEntry } from '../data/apod/apod.testing';
-import { queryRequired } from '../../testing/dom';
-import { SeenStoriesService } from './seen-stories.service';
-import { StoriesPlayer, STORY_DURATION_MS } from './stories-player';
-import { StoryTransitionService } from './story-transition';
+import {provideHttpClient} from '@angular/common/http';
+import {provideHttpClientTesting} from '@angular/common/http/testing';
+import {TestBed} from '@angular/core/testing';
+import {provideRouter, Router, withComponentInputBinding} from '@angular/router';
+import {RouterTestingHarness} from '@angular/router/testing';
 
-// Groups built from these: latest [22, 21, 20], solar-system [22], galaxies [21], nebulae [20].
+import {queryRequired} from '../../testing/dom';
+import {routes} from '../app.routes';
+import {ApodService} from '../data/apod/apod.service';
+import {fakeApodService} from '../data/apod/apod.service.fake';
+import {makeEntry} from '../data/apod/apod.testing';
+import {SeenStoriesService} from './seen-stories.service';
+import {StoriesPlayer, STORY_DURATION_MS} from './stories-player';
+import {StoryTransitionService} from './story-transition';
+
 const ENTRIES = [
-  makeEntry('2026-09-22', { title: 'Mars at Dawn' }),
-  makeEntry('2026-09-21', { title: 'A Spiral Galaxy' }),
-  makeEntry('2026-09-20', { title: 'The Veil Nebula' }),
+  makeEntry('2026-09-22', {title: 'Mars at Dawn'}),
+  makeEntry('2026-09-21', {title: 'A Spiral Galaxy'}),
+  makeEntry('2026-09-20', {title: 'The Veil Nebula'}),
 ];
 
 describe('StoriesPlayer', () => {
@@ -26,15 +26,16 @@ describe('StoriesPlayer', () => {
   const root = (): HTMLElement => queryRequired(document, 'app-home');
   const player = (): StoriesPlayer => {
     const node = harness.fixture.debugElement.query(
-      (candidate) => candidate.componentInstance instanceof StoriesPlayer,
+      (candidate) => candidate.componentInstance instanceof StoriesPlayer
     );
     const instance: unknown = node.componentInstance;
+
     if (!(instance instanceof StoriesPlayer)) throw new Error('Player is not open');
+
     return instance;
   };
   const activeFace = (): HTMLElement | null => document.querySelector<HTMLElement>('.face--active');
-  const activeTitle = (): string | undefined =>
-    activeFace()?.querySelector('.face__title')?.textContent.trim();
+  const activeTitle = (): string | undefined => activeFace()?.querySelector('.face__title')?.textContent.trim();
 
   async function settle(ms = 0): Promise<void> {
     await vi.advanceTimersByTimeAsync(ms);
@@ -51,7 +52,7 @@ describe('StoriesPlayer', () => {
   }
 
   function key(name: string): void {
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: name, bubbles: true }));
+    document.dispatchEvent(new KeyboardEvent('keydown', {key: name, bubbles: true}));
     harness.fixture.detectChanges();
   }
 
@@ -71,7 +72,7 @@ describe('StoriesPlayer', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter(routes, withComponentInputBinding()),
-        { provide: ApodService, useValue: fakeApodService(ENTRIES) },
+        {provide: ApodService, useValue: fakeApodService(ENTRIES)},
       ],
     });
   });
@@ -85,9 +86,7 @@ describe('StoriesPlayer', () => {
 
     expect(activeTitle()).toBe('A Spiral Galaxy');
     expect(activeFace()?.querySelectorAll('.segment')).toHaveLength(3);
-    expect(document.querySelector('[role="dialog"]')?.getAttribute('aria-label')).toBe(
-      'Stories: Latest',
-    );
+    expect(document.querySelector('[role="dialog"]')?.getAttribute('aria-label')).toBe('Stories: Latest');
   });
 
   it('marks stories as seen once their picture is shown', async () => {
@@ -156,9 +155,7 @@ describe('StoriesPlayer', () => {
     await settle(1000);
 
     expect(router.url).toBe('/stories/solar-system/2026-09-22');
-    expect(document.querySelector('[role="dialog"]')?.getAttribute('aria-label')).toBe(
-      'Stories: Solar System',
-    );
+    expect(document.querySelector('[role="dialog"]')?.getAttribute('aria-label')).toBe('Stories: Solar System');
   });
 
   it('closes after the very last story', async () => {
@@ -187,7 +184,7 @@ describe('StoriesPlayer', () => {
     await open('/stories/latest/2026-09-22');
 
     const more = [...document.querySelectorAll<HTMLButtonElement>('.text-button')].find(
-      (button) => button.textContent.trim() === 'More',
+      (button) => button.textContent.trim() === 'More'
     );
     more?.click();
     harness.fixture.detectChanges();
@@ -215,8 +212,8 @@ describe('StoriesPlayer', () => {
   it('copies the link when the Web Share API is unavailable', async () => {
     await open('/stories/latest/2026-09-22');
     const writeText = vi.fn(() => Promise.resolve());
-    Object.defineProperty(navigator, 'share', { configurable: true, value: undefined });
-    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
+    Object.defineProperty(navigator, 'share', {configurable: true, value: undefined});
+    Object.defineProperty(navigator, 'clipboard', {configurable: true, value: {writeText}});
 
     await player().share();
     harness.fixture.detectChanges();

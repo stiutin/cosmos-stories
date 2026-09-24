@@ -1,4 +1,4 @@
-# One grouped PR per ecosystem per month keeps the PR list tidy.
+# One grouped pull request per ecosystem per month keeps the PR list quiet.
 version: 2
 updates:
   - package-ecosystem: npm
@@ -9,13 +9,15 @@ updates:
       npm-dependencies:
         patterns: ['*']
     ignore:
-      # Angular majors need `ng update` migrations, so they're done by hand.
+      # Majors that need migrations are done by hand (`ng update`, TypeScript with typescript-eslint).
       - dependency-name: '@angular/*'
         update-types: ['version-update:semver-major']
       - dependency-name: 'angular-eslint'
         update-types: ['version-update:semver-major']
       - dependency-name: 'typescript'
         update-types: ['version-update:semver-major', 'version-update:semver-minor']
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
   - package-ecosystem: github-actions
     directory: /
     schedule:

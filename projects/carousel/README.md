@@ -18,7 +18,7 @@ The package has two entry points:
 ## Angular usage
 
 ```ts
-import { UiCarousel, UiCarouselSlide } from '@cosmos-stories/carousel';
+import {UiCarousel, UiCarouselSlide} from '@cosmos-stories/carousel';
 
 @Component({
   imports: [UiCarousel, UiCarouselSlide],
@@ -42,7 +42,7 @@ Passing the items to `[uiCarouselSlide]` is optional. It only types `let-photo` 
 
 | Input          | Default        | Description                                                      |
 | -------------- | -------------- | ---------------------------------------------------------------- |
-| `items`        | —              | The data to render, one slide per item                           |
+| `items`        | -              | The data to render, one slide per item                           |
 | `label`        | `'Carousel'`   | Accessible name of the carousel region                           |
 | `itemLabel`    | `Slide n`      | `(item, index) => string`, the accessible name of each indicator |
 | `loop`         | `true`         | Wrap around seamlessly, or stop at the ends with edge resistance |
@@ -78,13 +78,11 @@ Signals: `state`, `index`, `count`, `playing`, `progress`. `progress` is refresh
 `CarouselEngine` holds no DOM references, timers or animation frames. You feed it commands and timestamps, and render its state.
 
 ```ts
-import { CarouselEngine } from '@cosmos-stories/carousel/core';
+import {CarouselEngine} from '@cosmos-stories/carousel/core';
 
-const engine = new CarouselEngine({ loop: true, interval: 5000 });
+const engine = new CarouselEngine({loop: true, interval: 5000});
 engine.setCount(slides.length);
 engine.subscribe((state) => render(state));
-
-// Every animation frame:
 engine.tick(performance.now());
 ```
 

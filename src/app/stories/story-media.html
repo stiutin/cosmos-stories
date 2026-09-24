@@ -1,65 +1,47 @@
 @if (videoOpen() && active() && embedUrl(); as url) {
-  <iframe
-    class="media__video"
-    [src]="url"
-    title="{{ entry().title }} (video)"
-    allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-    allowfullscreen
-    referrerpolicy="strict-origin-when-cross-origin"
-  ></iframe>
-  <button class="media__close-video" type="button" (click)="setVideoOpen(false)">
-    Close video
-  </button>
+<iframe
+  class="media__video"
+  [src]="url"
+  title="{{ entry().title }} (video)"
+  allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+  allowfullscreen
+  referrerpolicy="strict-origin-when-cross-origin"
+></iframe>
+<button class="media__close-video" type="button" (click)="setVideoOpen(false)">Close video</button>
+} @else { @if (image(); as src) {
+<img class="media__backdrop" [src]="backdrop() ?? src" alt="" aria-hidden="true" referrerpolicy="no-referrer" />
+<!-- Stories are at most ~480 CSS px wide on desktop and full width on phones. -->
+<picture>
+  @for (source of sources(); track source.type) {
+  <source [type]="source.type" [attr.srcset]="source.srcset" sizes="(min-width: 768px) 480px, 100vw" />
+  }
+  <img
+    class="media__image"
+    [src]="src"
+    [alt]="entry().title"
+    [attr.width]="size()?.width ?? null"
+    [attr.height]="size()?.height ?? null"
+    referrerpolicy="no-referrer"
+    draggable="false"
+    decoding="async"
+    [attr.fetchpriority]="priority() ? 'high' : 'low'"
+    (load)="onLoad()"
+    (error)="onError()"
+  />
+</picture>
 } @else {
-  @if (image(); as src) {
-    <img
-      class="media__backdrop"
-      [src]="backdrop() ?? src"
-      alt=""
-      aria-hidden="true"
-      referrerpolicy="no-referrer"
-    />
-    <!-- Stories are at most ~480 CSS px wide on desktop and full width on phones. -->
-    <picture>
-      @for (source of sources(); track source.type) {
-        <source
-          [type]="source.type"
-          [attr.srcset]="source.srcset"
-          sizes="(min-width: 768px) 480px, 100vw"
-        />
-      }
-      <img
-        class="media__image"
-        [src]="src"
-        [alt]="entry().title"
-        [attr.width]="size()?.width ?? null"
-        [attr.height]="size()?.height ?? null"
-        referrerpolicy="no-referrer"
-        draggable="false"
-        decoding="async"
-        [attr.fetchpriority]="priority() ? 'high' : 'low'"
-        (load)="onLoad()"
-        (error)="onError()"
-      />
-    </picture>
-  } @else {
-    <div class="media__placeholder"></div>
-  }
-  @if (failed()) {
-    <p class="media__failed">The picture couldn't be loaded.</p>
-  }
-  @if (entry().media.kind === 'video') {
-    @if (embedUrl()) {
-      <button class="media__play" type="button" (click)="setVideoOpen(true)">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M8 5.5v13a1 1 0 0 0 1.5.86l11-6.5a1 1 0 0 0 0-1.72l-11-6.5A1 1 0 0 0 8 5.5Z" />
-        </svg>
-        Play video
-      </button>
-    } @else {
-      <a class="media__play" [href]="entry().pageUrl" target="_blank" rel="noopener noreferrer">
-        Watch on APOD<span class="visually-hidden"> (opens in a new tab)</span>
-      </a>
-    }
-  }
-}
+<div class="media__placeholder"></div>
+} @if (failed()) {
+<p class="media__failed">The picture couldn't be loaded.</p>
+} @if (entry().media.kind === 'video') { @if (embedUrl()) {
+<button class="media__play" type="button" (click)="setVideoOpen(true)">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M8 5.5v13a1 1 0 0 0 1.5.86l11-6.5a1 1 0 0 0 0-1.72l-11-6.5A1 1 0 0 0 8 5.5Z" />
+  </svg>
+  Play video
+</button>
+} @else {
+<a class="media__play" [href]="entry().pageUrl" target="_blank" rel="noopener noreferrer">
+  Watch on APOD<span class="visually-hidden"> (opens in a new tab)</span>
+</a>
+} } }

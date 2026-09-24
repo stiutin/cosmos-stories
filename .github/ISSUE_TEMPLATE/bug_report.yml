@@ -12,12 +12,11 @@ body:
   - type: input
     id: url
     attributes:
-      label: Page or story URL
-      placeholder: https://stiutin.github.io/cosmos-stories/stories/latest/2026-09-22
+      label: Page URL
   - type: input
     id: environment
     attributes:
       label: Browser and device
-      placeholder: Safari on iPhone 15 / Chrome 142 on Windows 11
+      placeholder: Safari on iPhone 15 / Chrome on Windows 11
     validations:
       required: true

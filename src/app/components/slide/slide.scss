@@ -23,7 +23,6 @@
 }
 
 :host {
-  // The slide's own size drives its layout (see the container query below).
   container-type: size;
   display: block;
   height: 100%;
@@ -96,7 +95,6 @@
   font-size: 0.7rem;
 }
 
-// Photos fill the slide; the fade keeps the text readable on bright images.
 .slide--photo {
   .slide__bg {
     object-position: center;
@@ -133,7 +131,6 @@
 }
 
 .slide__button {
-  -webkit-tap-highlight-color: transparent;
   align-items: center;
   background: transparent;
   border: 2px solid var(--color-white);
@@ -148,6 +145,7 @@
   letter-spacing: 0.03em;
   margin-top: 4px;
   padding: 12px 40px;
+  -webkit-tap-highlight-color: transparent;
   text-decoration: none;
   transition: background 0.3s ease;
   white-space: nowrap;
@@ -209,11 +207,11 @@
   .slide.slide--center .slide__content,
   .slide.slide--right .slide__content {
     align-items: flex-start;
+    height: 100%;
     justify-content: center;
     max-width: min(560px, 50%);
     padding: 0 0 0 clamp(24px, 6cqw, 80px);
     text-align: left;
-    height: 100%;
   }
 
   .slide__title {
@@ -230,6 +228,7 @@
   100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-20px);
   }

@@ -1,18 +1,18 @@
-import type { ActivatedRouteSnapshot, ViewTransitionInfo } from '@angular/router';
-import { isStoriesRoute, onStoryViewTransition, STORIES_ROUTE_PATH } from './story-transition';
+import type {ActivatedRouteSnapshot, ViewTransitionInfo} from '@angular/router';
+
+import {isStoriesRoute, onStoryViewTransition, STORIES_ROUTE_PATH} from './story-transition';
 
 function route(path: string, child: ActivatedRouteSnapshot | null = null): ActivatedRouteSnapshot {
-  return { routeConfig: { path }, firstChild: child } as unknown as ActivatedRouteSnapshot;
+  return {routeConfig: {path}, firstChild: child} as unknown as ActivatedRouteSnapshot;
 }
 
-/** Root snapshots: the router's root route has the page routes as children. */
 const initial = route('', null);
 const home = route('', route(''));
 const player = route('', route('', route(STORIES_ROUTE_PATH)));
 
 function transitionFor(from: ActivatedRouteSnapshot, to: ActivatedRouteSnapshot, reduced = false) {
   const skipTransition = vi.fn();
-  const info = { transition: { skipTransition }, from, to } as unknown as ViewTransitionInfo;
+  const info = {transition: {skipTransition}, from, to} as unknown as ViewTransitionInfo;
   onStoryViewTransition(info, reduced);
   return skipTransition;
 }

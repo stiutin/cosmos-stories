@@ -1,10 +1,4 @@
-import {
-  indexToPosition,
-  isClonePosition,
-  normalizePosition,
-  positionToIndex,
-  withClones,
-} from './loop';
+import {indexToPosition, isClonePosition, normalizePosition, positionToIndex, withClones} from './loop';
 
 describe('withClones', () => {
   it('wraps the slides with clones of the last and first slide', () => {

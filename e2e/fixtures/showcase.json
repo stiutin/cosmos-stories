@@ -1,0 +1,60 @@
+{
+  "generatedAt": "2026-09-23T06:15:00Z",
+  "isSample": false,
+  "entries": [
+    {
+      "date": "2026-09-22",
+      "title": "A Ringed World",
+      "explanation": "Illustration from this repository's demo data. On the live site, this is a real NASA Astronomy Picture of the Day with its explanation and credit.",
+      "media": {"kind": "image", "url": "slides/nebula-visual.svg", "hdUrl": null},
+      "copyright": null,
+      "pageUrl": "https://apod.nasa.gov/apod/astropix.html",
+      "cover": null
+    },
+    {
+      "date": "2026-09-21",
+      "title": "A Spiral Galaxy",
+      "explanation": "Illustration from this repository's demo data. On the live site, this is a real NASA Astronomy Picture of the Day with its explanation and credit.",
+      "media": {"kind": "image", "url": "slides/galaxy-visual.svg", "hdUrl": null},
+      "copyright": null,
+      "pageUrl": "https://apod.nasa.gov/apod/astropix.html",
+      "cover": null
+    },
+    {
+      "date": "2026-09-20",
+      "title": "A Moon in Orbit",
+      "explanation": "Illustration from this repository's demo data. On the live site, this is a real NASA Astronomy Picture of the Day with its explanation and credit.",
+      "media": {"kind": "image", "url": "slides/orbit-visual.svg", "hdUrl": null},
+      "copyright": null,
+      "pageUrl": "https://apod.nasa.gov/apod/astropix.html",
+      "cover": null
+    },
+    {
+      "date": "2026-09-19",
+      "title": "Violet Nebula Glow",
+      "explanation": "Illustration from this repository's demo data. On the live site, this is a real NASA Astronomy Picture of the Day with its explanation and credit.",
+      "media": {"kind": "image", "url": "slides/nebula-bg.svg", "hdUrl": null},
+      "copyright": null,
+      "pageUrl": "https://apod.nasa.gov/apod/astropix.html",
+      "cover": null
+    },
+    {
+      "date": "2026-09-18",
+      "title": "Crimson Nebula",
+      "explanation": "Illustration from this repository's demo data. On the live site, this is a real NASA Astronomy Picture of the Day with its explanation and credit.",
+      "media": {"kind": "image", "url": "slides/galaxy-bg.svg", "hdUrl": null},
+      "copyright": null,
+      "pageUrl": "https://apod.nasa.gov/apod/astropix.html",
+      "cover": null
+    },
+    {
+      "date": "2026-09-17",
+      "title": "Stars Over the Blue Sky",
+      "explanation": "Illustration from this repository's demo data. On the live site, this is a real NASA Astronomy Picture of the Day with its explanation and credit.",
+      "media": {"kind": "image", "url": "slides/orbit-bg.svg", "hdUrl": null},
+      "copyright": null,
+      "pageUrl": "https://apod.nasa.gov/apod/astropix.html",
+      "cover": null
+    }
+  ]
+}

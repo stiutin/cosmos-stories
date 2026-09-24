@@ -3,8 +3,8 @@
     <a class="playground__back" routerLink="/">← Cosmos Stories</a>
     <h1>Carousel playground</h1>
     <p class="playground__intro">
-      Every option of <code>&#64;cosmos-stories/carousel</code>, live. The same engine drives the
-      banner and the stories cube.
+      Every option of <code>&#64;cosmos-stories/carousel</code>, live. The same engine drives the banner and the stories
+      cube.
     </p>
   </header>
 
@@ -13,16 +13,8 @@
       <h2>Options</h2>
 
       <label class="field">
-        <span
-          >Slides <output>{{ slideCount() }}</output></span
-        >
-        <input
-          type="range"
-          min="1"
-          max="8"
-          [value]="slideCount()"
-          (input)="slideCount.set(numeric($event))"
-        />
+        <span>Slides <output>{{ slideCount() }}</output></span>
+        <input type="range" min="1" max="8" [value]="slideCount()" (input)="slideCount.set(numeric($event))" />
       </label>
 
       <label class="field field--check">
@@ -36,9 +28,7 @@
       </label>
 
       <label class="field">
-        <span
-          >Interval <output>{{ intervalSeconds() }} s</output></span
-        >
+        <span>Interval <output>{{ intervalSeconds() }} s</output></span>
         <input
           type="range"
           min="2"
@@ -52,16 +42,16 @@
         <legend>Orientation</legend>
         <div class="segmented">
           @for (value of ['horizontal', 'vertical']; track value) {
-            <label>
-              <input
-                type="radio"
-                name="orientation"
-                [value]="value"
-                [checked]="orientation() === value"
-                (change)="setOrientation(text($event))"
-              />
-              <span>{{ value }}</span>
-            </label>
+          <label>
+            <input
+              type="radio"
+              name="orientation"
+              [value]="value"
+              [checked]="orientation() === value"
+              (change)="setOrientation(text($event))"
+            />
+            <span>{{ value }}</span>
+          </label>
           }
         </div>
       </fieldset>
@@ -72,9 +62,7 @@
       </label>
 
       <label class="field">
-        <span
-          >Transition <output>{{ transitionMs() }} ms</output></span
-        >
+        <span>Transition <output>{{ transitionMs() }} ms</output></span>
         <input
           type="range"
           min="0"
@@ -89,15 +77,13 @@
         <span>Easing</span>
         <select (change)="setEasing(text($event))">
           @for (name of easingNames; track name) {
-            <option [value]="name" [selected]="name === easing()">{{ name }}</option>
+          <option [value]="name" [selected]="name === easing()">{{ name }}</option>
           }
         </select>
       </label>
 
       <label class="field">
-        <span
-          >Swipe distance <output>{{ distanceRatio() }}</output></span
-        >
+        <span>Swipe distance <output>{{ distanceRatio() }}</output></span>
         <input
           type="range"
           min="0.1"
@@ -109,9 +95,7 @@
       </label>
 
       <label class="field">
-        <span
-          >Flick velocity <output>{{ flickVelocity() }} px/ms</output></span
-        >
+        <span>Flick velocity <output>{{ flickVelocity() }} px/ms</output></span>
         <input
           type="range"
           min="0.1"
@@ -189,9 +173,9 @@
         <h3>indexChange</h3>
         <ol class="log" aria-live="off">
           @for (entry of log(); track $index) {
-            <li>{{ entry }}</li>
+          <li>{{ entry }}</li>
           } @empty {
-            <li class="log__empty">Swipe, press ← → or wait for autoplay</li>
+          <li class="log__empty">Swipe, press ← → or wait for autoplay</li>
           }
         </ol>
       </div>

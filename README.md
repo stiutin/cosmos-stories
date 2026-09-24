@@ -1,227 +1,161 @@
-<p align="center">
-  <img src="docs/social-preview.png" alt="Cosmos Stories: NASA's Astronomy Picture of the Day as Instagram-style stories, built with Angular 22" width="100%" />
-</p>
-
-<p align="center">
-  <a href="https://stiutin.github.io/cosmos-stories/"><strong>▶ Live demo</strong></a>
-  &nbsp;·&nbsp;
-  <a href="https://stiutin.github.io/cosmos-stories/playground"><strong>Carousel playground</strong></a>
-</p>
-
-<p align="center">
-  <a href="https://github.com/stiutin/cosmos-stories/actions/workflows/ci.yml"><img src="https://github.com/stiutin/cosmos-stories/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-  <img src="https://img.shields.io/badge/Angular-22-dd0031" alt="Angular 22" />
-  <img src="https://img.shields.io/badge/TypeScript-6-3178c6" alt="TypeScript 6" />
-  <img src="https://img.shields.io/badge/Lighthouse-a11y%20100%20%C2%B7%20SEO%20100-0cce6b" alt="Lighthouse accessibility 100, SEO 100" />
-  <img src="https://img.shields.io/badge/tests-unit%20%2B%20e2e-blueviolet" alt="Unit and end-to-end tests" />
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="MIT license" /></a>
-</p>
-
 # Cosmos Stories
 
-**NASA's Astronomy Picture of the Day, told as Instagram-style stories.** Tap through today's picture, hold to look closer, swipe to turn a 3D cube to the next topic, and share any story by its URL. It works on phones and desktops, installs as an app, and keeps working offline.
+NASA's Astronomy Picture of the Day, told as stories, built with Angular 22.
 
-Under the hood, one **framework-agnostic carousel engine** drives both the classic banner and the stories cube. It ships as its own Angular library, with a [playground](https://stiutin.github.io/cosmos-stories/playground) to try every option.
+Open a story ring and tap through the latest pictures: hold to look closer, swipe sideways to turn a 3D cube to the next topic, swipe down to close. Every story has its own address, so it can be shared, and the site installs as an app and keeps working offline. Underneath, one carousel engine without any framework code drives both the stories cube and the classic banner on the home page. It ships as its own Angular library, with a playground for every option.
+
+**[Open the live demo](https://stiutin.github.io/cosmos-stories/)** · **[Carousel playground](https://stiutin.github.io/cosmos-stories/playground)**
 
 <p align="center">
-  <img src="docs/screens/stories-demo.webp" alt="Screen recording on a phone: opening a story ring, tapping through stories, turning the 3D cube to the next group, and swiping down to close back into the ring" width="300" />
-  &nbsp;&nbsp;
-  <img src="docs/screens/phones.webp" alt="Three phone screens: the home page with story rings and the banner, a story, and the 3D cube halfway through a turn" width="520" />
+  <img src=".github/screenshots/home.png" width="49%" alt="The home page: story rings above the Today in space banner" />
+  <img src=".github/screenshots/player.png" width="49%" alt="A story on desktop, in a 9:16 frame with the next group beside it" />
 </p>
-
-> Screens above use the repository's own demo artwork. The live site shows real NASA pictures, refreshed every night.
+<p align="center">
+  <img src=".github/screenshots/stories-demo.webp" width="30%" alt="Screen recording on a phone: opening a ring, tapping through stories, turning the cube and swiping down to close" />
+  <img src=".github/screenshots/story-mobile.png" width="30%" alt="A story on a phone" />
+  <img src=".github/screenshots/home-mobile.png" width="30%" alt="The home page on a phone" />
+</p>
 
 ## Features
 
-### Stories player
+- Stories with segmented progress bars; tap left or right to step, hold to pause, swipe down to close
+- A 3D cube between story groups that follows the finger, with resistance at both ends
+- Story rings that remember what has been seen, and resume at the first unseen story
+- A shared view transition: the ring grows into the story and shrinks back into it
+- A real address for every story, served as its own page, with sharing through the Web Share API
+- Video stories that show a poster first and play in a privacy-enhanced embed on demand
+- The "Today in space" banner: a seamless infinite carousel with a pausable autoplay
+- A carousel playground: every option live, the engine state as it changes, and a template to copy
+- Fresh pictures every night, optimised to AVIF and WebP when the site is built
+- Installable as a Progressive Web App, works offline, and offers to update when a new build is ready
+- Keyboard support, screen reader announcements, reduced motion respected, no axe violations
+- Deployed to GitHub Pages from CI after every green push, and once a day
 
-- Segmented progress bars and 7-second stories. The timer waits until the picture is on screen.
-- Tap left or right to step, **press and hold** to pause and hide the interface, **swipe down** to close.
-- **Swipe sideways to turn a 3D cube** to the next group. It follows the finger and has edge resistance at both ends.
-- Every story has a real URL, such as `/stories/galaxies/2026-09-21`, served with `200 OK` and shareable through the Web Share API or a copied link.
-- Video stories show the poster first, then an allow-listed, privacy-enhanced embed (`youtube-nocookie.com`) on demand.
-- On desktop: a 9:16 frame with neighbouring groups beside it, and ← → / Space / Esc shortcuts.
-- The next picture is preloaded (typed AVIF preload), and the player is a lazy-loaded route.
+## Tech stack
 
-### Home screen
+[Angular 22](https://angular.dev/) (standalone, zoneless, signals, OnPush by default), a carousel library built with ng-packagr, RxJS, the Angular Service Worker, the View Transitions API, SCSS. Images are processed with [sharp](https://sharp.pixelplumbing.com/).
+Tested with [Vitest](https://vitest.dev/), `node:test`, [Playwright](https://playwright.dev/), axe-core and Lighthouse CI.
+Pictures and texts come from [NASA's Astronomy Picture of the Day](https://apod.nasa.gov/apod/).
 
-- **Story rings:** groups with new stories come first with a gradient ring, and seen groups turn grey and move to the end. Seen state is kept in `localStorage`, and a ring resumes at the first unseen story.
-- **View Transitions:** the ring morphs into the open story and back.
-- **"Today in space" banner:** the latest pictures in a seamless infinite carousel, running on the same engine as the cube.
+## How it works
 
-### Carousel library (`@cosmos-stories/carousel`)
+### The carousel engine
 
-- A headless `CarouselEngine`: a deterministic state machine with zero dependencies and 100 % line coverage.
-- `<ui-carousel>`: content projection, signals API, `exportAs` for custom controls, horizontal or vertical, loop or bounded.
-- Pointer gestures (touch, mouse, pen), flick velocity, and axis locking.
-- The WAI-ARIA carousel pattern, a pause button (WCAG 2.2.2), `inert` off-screen slides, and reduced-motion support.
-- **[Playground](https://stiutin.github.io/cosmos-stories/playground):** every input live, the engine state as it changes, and a generated template to copy.
+The carousel is a small library inside the repository, in `projects/carousel`, with two entry points. `@cosmos-stories/carousel/core` holds `CarouselEngine`, a state machine with no dependencies at all: it never touches the DOM, timers or animation frames. The host passes the time in through `tick(now)` and reports when a transition ends, so every behaviour is tested synchronously, down to the millisecond.
 
-### Platform
+The infinite loop uses clones: the track renders a copy of the last slide before the first and a copy of the first after the last. Moving past an end animates onto a clone, so the motion keeps its direction, and when the transition ends the track jumps, without animation, to the real slide the clone shows. When a new move arrives while the track still rests on a clone, the engine makes the jump, marks the move as pending and waits for the renderer to paint before animating. That keeps the browser's timing an explicit part of the contract instead of a hidden race.
 
-- **PWA:** installable, works offline (service worker), and prompts when a new daily build is ready.
-- **Accessible:** 0 axe violations on every page and Lighthouse accessibility 100, both checked in CI.
-- Responsive from 320 px phones to 4K, including landscape phones.
+`@cosmos-stories/carousel` holds the Angular side: `<ui-carousel>` renders any template, maps pointer, keyboard, focus and visibility events to engine commands, and follows the WAI-ARIA carousel pattern.
 
-<p align="center">
-  <img src="docs/screens/home-desktop.webp" alt="Desktop home page: header with Playground link, story rings, and the Today in space banner" width="49%" />
-  <img src="docs/screens/player-desktop.webp" alt="Desktop stories player: a 9:16 story frame with the neighbouring group beside it" width="49%" />
-</p>
-<p align="center">
-  <img src="docs/screens/playground.webp" alt="Carousel playground: options panel, live preview with custom controls, engine state and indexChange log" width="80%" />
-</p>                                         |
+### The stories player
 
-## Architecture
+The player is a lazy-loaded child route, `/stories/:group/:date`, that opens over the home page. The page underneath becomes inert and its banner pauses. The route parameters arrive as component inputs, and the player replaces the address as stories advance, so the back button leaves the player instead of stepping through stories.
 
-```mermaid
-flowchart LR
-    subgraph core ["@cosmos-stories/carousel/core (no dependencies)"]
-        Engine[CarouselEngine<br/>state machine]
-        Loop[loop helpers<br/>clones and positions]
-        Clock[AutoplayClock]
-        Tracker[SwipeTracker]
-        Engine --> Loop
-        Engine --> Clock
-    end
+Groups are faces of a cube driven by a second `CarouselEngine`, in bounded mode. Only the renderer differs: each face is rotated by 90° per step instead of translated. Stories inside a group run on the engine's `AutoplayClock` with named pause reasons (hold, hidden tab, picture still loading, open caption or video, the cube turning), so each concern only ever releases its own pause.
 
-    subgraph ng ["@cosmos-stories/carousel (Angular)"]
-        Carousel["&lt;ui-carousel&gt;<br/>signals adapter"]
-        Swipe["[uiSwipe]<br/>pointer events"]
-        SlideTpl["ng-template[uiCarouselSlide]"]
-        Swipe --> Tracker
-    end
+One directive tells a tap from a hold, a sideways drag and a swipe down. Gestures that start on a button or a link are left alone. The first navigation never runs a view transition, because its overlay would swallow the first taps on a freshly opened link.
 
-    subgraph app [Cosmos Stories app]
-        Banner[Banner carousel<br/>slides from the snapshot]
-        Play[Playground<br/>interactive docs]
-        Stories[Stories player<br/>3D cube renderer]
-    end
+### Data: a nightly snapshot
 
-    Carousel --> Engine
-    Carousel --> Swipe
-    Banner --> Carousel
-    Play --> Carousel
-    Stories --> Engine
-```
+The APOD API needs a key, and calling it from the browser would put the key in the bundle and every visitor against the rate limit. Instead, a scheduled CI run fetches the latest pictures with the key from the repository secrets and writes a validated snapshot into the build. The site downloads one small file from its own origin.
 
-- **`CarouselEngine`** owns behaviour: navigation, the seamless loop, dragging, edge resistance and autoplay. It never touches the DOM or timers. The host passes time into `tick(now)` and reports `settle()`, so every behaviour is tested synchronously.
-- **Renderers** are thin. `<ui-carousel>` translates a track; the stories player rotates cube faces by `90° × (index − position)`. The contract has five rules and is documented in the [library README](projects/carousel/README.md).
-- **Animation without change detection.** Progress bars are painted from the frame loop, and Angular only re-renders when the state really changes.
+The same validation module runs in Node, which executes the TypeScript directly, and again in the browser, so a damaged file loses a few entries rather than breaking the page. If the API is down, the build reuses the snapshot that is already live; if there is no real data at all, the run fails and the site keeps its previous deployment. Only public-domain pictures are kept by default, and each story shows its credit.
 
-```text
-src/app/
-├── home/              home page: rings, banner, header (child route host for the player)
-├── stories/           player, cube, gestures, navigation, seen state, view transitions
-├── playground/        interactive docs for the carousel library
-├── data/apod/         model, validation (shared with Node), grouping, media helpers, service
-├── components/        banner carousel, slide, story rings, update prompt
-└── services/          banner composition
-projects/carousel/
-├── core/src/          CarouselEngine, AutoplayClock, SwipeTracker, loop helpers (no dependencies)
-└── src/lib/           <ui-carousel>, [uiCarouselSlide], [uiSwipe]
-scripts/               nightly snapshot, image optimisation, story pages, e2e preparation
-e2e/                   Playwright tests, fixture data, GitHub-Pages-like static server
-```
+### Images, offline and updates
 
-## Data pipeline
+When the snapshot is built, every picture is converted to AVIF and WebP in four widths, from 160 to 1600 pixels, and served through `<picture>` with `srcset`. The next story is preloaded in the format the browser supports. The Service Worker keeps the app shell, the artwork and the pictures that have been seen; the snapshot is fetched fresh when the network answers within a few seconds, and from the cache otherwise.
 
-```mermaid
-flowchart LR
-    Cron([Daily 06:15 UTC<br/>or push to master]) --> Script[scripts/fetch-apod.ts]
-    Script -->|NASA_API_KEY secret| API[(NASA APOD API)]
-    Script -.->|API down| Live[(Deployed snapshot<br/>last known good)]
-    Script --> Snapshot[data/apod.json<br/>validated, normalised]
-    Snapshot --> Build[ng build] --> Pages[GitHub Pages]
-    Pages --> App[ApodService<br/>rxResource + retry] --> UI[Banner, stories]
-```
+### Performance and accessibility
 
-- **The API key never reaches the browser.** A scheduled GitHub Actions run (06:15 UTC, right after APOD publishes) uses the `NASA_API_KEY` secret and writes a validated snapshot into the build.
-- **Validated twice by the same module:** `apod.parse.ts` has no runtime imports, so Node 24 runs it directly through type stripping when the snapshot is built, and the browser uses it again when the snapshot is loaded.
-- **Resilient:** it retries 429 and 5xx responses, handles "today isn't published yet", falls back to the deployed snapshot, and on `master` never publishes sample data.
-- **Rights-aware:** only public-domain media by default (`--include-copyrighted` to change that), with credits on every story.
-- **Pictures are optimised once:** AVIF and WebP at 160, 480, 960 and 1600 px, self-hosted next to the snapshot.
+Progress bars are painted straight from the animation frame loop instead of through signals, so autoplay costs no change detection per frame. A static shell in `index.html` paints before Angular starts, the first slide does not wait for data, and placeholders keep the layout still while it loads. Lighthouse on mobile scores 89–96 for performance and 100 for accessibility, best practices and SEO, with no layout shift. Inactive slides are inert, controls have visible focus and 24-pixel targets, and announcements are polite and only follow the user's own actions.
 
-## Performance and quality
+## Testing
 
-Lighthouse on mobile (simulated throttling). The ranges cover several local runs of 3, and the runner's load moves scores by a few points:
+| Layer       | Tool                 | What it covers                                                                               |
+| ----------- | -------------------- | -------------------------------------------------------------------------------------------- |
+| Unit        | Vitest, jsdom        | the engine, the library, the player, data validation, grouping, services - 192 tests         |
+| Scripts     | `node:test`, sharp   | the image pipeline                                                                           |
+| End-to-end  | Playwright, axe-core | rings, gestures, cube, keyboard, deep links, sharing, offline, the playground - 23 scenarios |
+| Performance | Lighthouse CI        | performance, accessibility, best practices, SEO, layout shift                                |
 
-| Page              | Performance | Accessibility | Best practices | SEO  | CLS    |
-| ----------------- | ----------- | ------------- | -------------- | ---- | ------ |
-| Home              | 89–95       | 100           | 100            | 100  | 0      |
-| Deep-linked story | 88–96       | 100           | 100            | 100  | 0      |
-| _Before stage 6_  | _67–77_     | _100_         | _100_          | _92_ | _0.12_ |
-
-What moved the numbers: self-hosted AVIF/WebP instead of 0.2–2 MB JPEGs, a static shell and preloads, placeholders that keep the layout still, **no change detection per animation frame** (script time 2.5 s → 0.4 s under 4× CPU throttling), and real `200 OK` pages for story links. The medians hover around 90–95; what keeps them from a stable 95+ is Angular's own bootstrap (see [what's next](#whats-next)).
-
-| Check                                                  | Tool                                                                                         | In CI                                                    |
-| ------------------------------------------------------ | -------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| Unit tests (app, library, scripts)                     | Vitest, `node:test`                                                                          | on every push                                            |
-| End-to-end, phone + desktop, including offline and axe | Playwright 1.63, axe-core                                                                    | required for deploy                                      |
-| Accessibility, best practices, SEO, CLS, performance   | Lighthouse CI                                                                                | hard gates, with performance ≥ 85 and a warning below 95 |
-| Types, lint, format                                    | TypeScript 6 strict, ESLint 10 (`typescript-eslint` strict, `angular-eslint` a11y), Prettier | on every push                                            |
-| Bundle size                                            | Angular budgets                                                                              | warning at 350 kB, error at 400 kB                       |
-
-## Getting started
-
-Requires **Node.js 24** (or 22.22.3+), as Angular 22 does. See `.nvmrc`.
-
-```bash
-npm install
-npm start                 # http://localhost:4200, with sample data
-```
-
-Real data locally: copy `.env.example` to `.env`, add a free key from [api.nasa.gov](https://api.nasa.gov), and run `npm run data:fetch`.
-
-| Script                               | What it does                                                                   |
-| ------------------------------------ | ------------------------------------------------------------------------------ |
-| `npm start`                          | Dev server (installs the sample data if there is none)                         |
-| `npm run build`                      | Production build of the app                                                    |
-| `npm run build:lib`                  | Publishable carousel package in `dist/carousel`                                |
-| `npm run data:fetch` / `data:sample` | Real snapshot from NASA / back to the sample                                   |
-| `npm test`                           | Unit tests for the app and the library (Vitest)                                |
-| `npm run test:scripts`               | Node tests for the data and image scripts                                      |
-| `npm run test:coverage`              | Library tests with coverage                                                    |
-| `npm run e2e`                        | **Builds, then** runs the Playwright tests (phone + desktop, axe, offline)     |
-| `npm run e2e:run` / `e2e:ui`         | Re-run end-to-end tests without rebuilding / in UI mode                        |
-| `npm run e2e:install`                | Downloads Playwright's Chromium (once per machine)                             |
-| `npx lhci autorun`                   | Lighthouse with the project's gates (after `npm run e2e:build`)                |
-| `npm run lint` / `format`            | ESLint / Prettier                                                              |
-| `npm run check`                      | Format check, lint, script type checks and all unit tests (what CI runs first) |
-
-Working on this repository with an AI assistant? [`CLAUDE.md`](CLAUDE.md) has the full context: architecture, invariants, conventions and pitfalls.
+Component tests use fake timers, which also fake animation frames, so the autoplay and the cube are tested frame by frame. The end-to-end tests run against a production build served like GitHub Pages, with fixture data, on a desktop and a phone viewport. Gestures are sent as pointer events, which is what the app itself handles.
 
 ## Project structure
 
-| Path                    | Purpose                                                                        |
-| ----------------------- | ------------------------------------------------------------------------------ |
-| `src/app`               | The Cosmos Stories application                                                 |
-| `projects/carousel`     | The `@cosmos-stories/carousel` library (`core` has no dependencies)            |
-| `scripts`               | Node 24 TypeScript scripts: snapshot, images, story pages, e2e preparation     |
-| `e2e`                   | Playwright tests, fixture data, a static server that behaves like GitHub Pages |
-| `data/apod.sample.json` | Sample data for development, based on the project's own artwork                |
-| `public`                | Static assets: artwork, icons, manifest; `public/data` is generated            |
-| `docs`                  | README images                                                                  |     |
+```
+src/app/
+├── home/             home page: story rings, the banner; hosts the player route
+├── stories/          player, cube, gestures, navigation, seen state, view transitions
+├── playground/       interactive documentation for the carousel library
+├── data/apod/        model, validation (shared with Node), grouping, image helpers, service
+├── components/       banner carousel, slide, story rings, update prompt
+└── services/         the banner's slides
+projects/carousel/
+├── core/src/         CarouselEngine, AutoplayClock, SwipeTracker, loop helpers
+└── src/lib/          <ui-carousel>, the slide template directive, the swipe directive
+scripts/              nightly snapshot, image optimisation, story pages, screenshots
+e2e/                  Playwright tests, fixture data, a server that behaves like GitHub Pages
+```
 
-## What's next
+## Running locally
 
-Ideas for future iterations, roughly by value:
+Requires Node 22.22.3 or newer (see `.nvmrc`).
 
-1. **Prerendering / SSR with incremental hydration.** Render the home page and every story page at build time, closing the last gap to Lighthouse 95+ (Angular's bootstrap).
-2. **Rich link previews per story.** The generated story pages get their own `og:title`, `og:description` and a 1200×630 `og:image` built from the cover, so a shared story shows its own picture in messengers.
-3. **The APOD archive.** A calendar and search over 30 years of pictures, "on this day" stories, and infinite groups loaded on demand.
-4. **Favourites and collections.** Double-tap to save, and personal story groups kept in IndexedDB.
-5. **Zoom into the HD image.** Pinch and double-tap to zoom into `hdurl`, with the story paused.
-6. **A native video experience.** The YouTube IFrame API for the real video length, a mute toggle, and a story timer that follows playback.
-7. **Localisation.** A Ukrainian and English UI with Angular i18n and localised dates.
-8. **Dynamic theming.** The dominant colour of each picture, extracted at build time, tints the interface of its story.
-9. **Read-aloud.** The explanation read with the Web Speech API: accessibility, and a "podcast mode".
-10. **Publish the carousel library to npm.** Versioning with Changesets, a docs site built from the playground, and support for more frameworks through the headless core (a React adapter would be a small layer).
-11. **Wider test matrix.** Firefox and WebKit end-to-end runs, and visual regression screenshots.
-12. **Real-user monitoring.** Core Web Vitals from the field (`web-vitals`), stored privately, to compare with Lighthouse lab numbers.
-13. **A 3D bridge to the solar system.** Planet stories open an interactive Three.js scene (see [threejs-solar-system](https://github.com/stiutin/threejs-solar-system)).
+```bash
+git clone https://github.com/stiutin/cosmos-stories.git
+cd cosmos-stories
+npm ci
+npm start
+```
 
-## Credits and license
+Without an API key, the site runs on sample data made from the repository's own artwork, and says so in the header. For real pictures, copy `.env.example` to `.env`, add a free key from [api.nasa.gov](https://api.nasa.gov), and run `npm run data:fetch`.
 
-Pictures and texts come from [NASA's Astronomy Picture of the Day](https://apod.nasa.gov/apod/), with individual credits shown on each story. Cosmos Stories is not affiliated with or endorsed by NASA.
+Other scripts:
 
-Code is [MIT](LICENSE). The artwork in `public/slides/` is original and ships under the same license.
+```bash
+npm run build          # production build
+npm run build:lib      # the carousel library as a package, in dist/carousel
+npm test               # unit tests for the app and the library
+npm run test:scripts   # tests for the build scripts
+npm run e2e            # build, then Playwright (run `npm run e2e:install` once)
+npm run lighthouse     # Lighthouse CI
+npm run screenshots    # regenerate the README screenshots
+npm run lint           # ESLint and Stylelint
+npm run typecheck      # TypeScript for the app, the specs, the scripts and the e2e suite
+npm run check          # formatting, lint, types and unit tests, as in CI
+```
+
+Working on the project with an AI assistant? [`CLAUDE.md`](CLAUDE.md) has the full context.
+
+## Deployment
+
+Pushing to `master` runs formatting, lint, type checks, unit tests, the end-to-end suite and Lighthouse. Only when they pass does the deploy job fetch the newest pictures, build the site for `/cosmos-stories/`, write a page for every story and publish to GitHub Pages. The same deploy also runs every morning, so the stories follow the Astronomy Picture of the Day.
+
+The deploy needs a `NASA_API_KEY` repository secret, and the `github-pages` environment must allow the `master` branch.
+
+## Roadmap
+
+- [ ] Prerendering with incremental hydration, for a stable Lighthouse 95+ on mobile
+- [ ] A preview image for every shared story, built from its picture
+- [ ] The APOD archive: a calendar, search, and "on this day" stories
+- [ ] Favourites and personal collections, kept in IndexedDB
+- [ ] Pinch to zoom into the full-resolution picture
+- [ ] The YouTube player API, for video stories that last as long as the video
+- [ ] Localisation, starting with German, Spanish, and Ukrainian
+- [ ] Interface colours taken from each picture at build time
+- [ ] Reading the explanation aloud with the Web Speech API
+- [ ] Publishing the carousel library to npm, with a React adapter on the same engine
+- [ ] Firefox and WebKit in the end-to-end suite, and visual regression tests
+- [ ] A bridge to [threejs-solar-system](https://github.com/stiutin/threejs-solar-system) from the planet stories
+
+## Credits
+
+Pictures and texts come from [NASA's Astronomy Picture of the Day](https://apod.nasa.gov/apod/), with the credit of each picture shown on its story. Cosmos Stories is not affiliated with or endorsed by NASA. The artwork in `public/slides/` is original.
+
+## License
+
+Released under the [MIT License](LICENSE).
+
+## Author
+
+**Serge Tiutin** - [github.com/stiutin](https://github.com/stiutin)

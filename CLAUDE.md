@@ -18,7 +18,7 @@ The repo also contains **`@cosmos-stories/carousel`**, a carousel library with a
 
 - Live: `https://stiutin.github.io/cosmos-stories/` (GitHub Pages, sub-path `/cosmos-stories/`)
 - Playground (library docs): `/playground`
-- It is a **portfolio project**. Code quality, tests, accessibility and docs matter as much as features. The history is documented stage by stage in `CHANGELOG.md` and `docs/adr/`.
+- It is a **portfolio project**. Code quality, tests, accessibility and docs matter as much as features. Decisions are explained in the README (_How it works_) and here; there is no changelog and no ADR folder.
 
 ## 2. Toolchain
 
@@ -28,7 +28,7 @@ The repo also contains **`@cosmos-stories/carousel`**, a carousel library with a
 | npm          | 11 (ships with Node 24)                                                                                                                  | npm 10.9 has an arborist bug (`Cannot read properties of null (reading 'edgesOut')`) on fresh lock generation; use npm 11 |
 | Angular      | 22.x                                                                                                                                     | zoneless; **OnPush is the default** in v22; fetch is the default HTTP backend                                             |
 | TypeScript   | 6.0                                                                                                                                      | strict + `noUncheckedIndexedAccess`, `noPropertyAccessFromIndexSignature` (app)                                           |
-| Test runners | Vitest 4 (through `ng test`), `node:test`, Playwright 1.63                                                                               |                                                                                                                           |
+| Test runners | Vitest 5 (through `ng test`), `node:test`, Playwright 1.63                                                                               |                                                                                                                           |
 | Lint/format  | ESLint 10 flat config (`defineConfig`), `typescript-eslint` **strictTypeChecked**, `angular-eslint` 22 (incl. template a11y), Prettier 3 |                                                                                                                           |
 | Other        | sharp (images), `@angular/service-worker`, Lighthouse CI, axe-core                                                                       |                                                                                                                           |
 
@@ -43,14 +43,16 @@ npm run build:lib          # ng-packagr build of projects/carousel → dist/caro
 npm test                   # Vitest: app, then library (fake DOM, fake timers)
 npm run test:lib           # library only;  npm run test:coverage for coverage
 npm run test:scripts       # node:test for scripts/*.test.ts (sharp image pipeline)
-npm run typecheck:scripts  # tsc for scripts/ and e2e/ (separate tsconfigs)
+npm run typecheck          # tsc for the app, the specs, scripts/ and e2e/ (separate tsconfigs)
 npm run lint               # ESLint (type-aware; slow-ish)
 npm run format             # Prettier write;  format:check in CI
-npm run check              # format:check + lint + typecheck:scripts + test + test:scripts  ← run before finishing
+npm run check              # format:check + lint + typecheck + test + test:scripts  ← run before finishing
 npm run e2e                # e2e:build (base href /cosmos-stories/ + fixture data + story pages) then Playwright
 npm run e2e:run            # Playwright only (reuses the last e2e build)
 npm run e2e:install        # download Playwright's Chromium (once per machine)
-npx lhci autorun           # Lighthouse with gates (needs `npm run e2e:build` first; uses e2e/serve.ts)
+npm run lighthouse         # Lighthouse with gates (builds the e2e build first; served by e2e/serve.ts)
+npm run serve              # serve the e2e build like GitHub Pages (port 4400, /cosmos-stories/)
+npm run screenshots        # .github/screenshots/*.png from the showcase data (e2e/fixtures/showcase.json)
 npm run data:fetch         # real snapshot from NASA (needs NASA_API_KEY in .env), images optimised
 npm run data:sample        # back to bundled sample data
 ```
@@ -60,7 +62,7 @@ npm run data:sample        # back to bundled sample data
 1. `npm run check` is green.
 2. UI or behaviour change: `npm run e2e` is green, both projects (`mobile`, `desktop`).
 3. New behaviour has tests at the lowest sensible level: pure logic → unit, component wiring → TestBed, user flow → Playwright.
-4. `CHANGELOG.md` is updated (Keep a Changelog style). Architectural decisions get an ADR in `docs/adr/`. README tables stay true.
+4. The README (features, scores, scripts, roadmap) and this file are still accurate. Decisions with real trade-offs are explained in the README's _How it works_ and in section 5 here.
 5. No new lint suppressions without a comment explaining why.
 
 ## 4. Repository map
@@ -92,7 +94,8 @@ scripts/                fetch-apod.ts, optimize-images.ts (+ .test.ts), story-pa
 e2e/                    Playwright specs, helpers.ts, fixtures/apod.json, serve.ts (GitHub-Pages-like server)
 data/apod.sample.json   dev sample (uses repo artwork from public/slides)
 public/                 artwork (slides/*.svg), icons, manifest; public/data/ is GENERATED (git-ignored)
-docs/adr/               docs/screens/ README images;  docs/social-preview.png
+ngsw-config.json        service worker caching;  lighthouserc.json  Lighthouse gates
+.github/screenshots/    README images (npm run screenshots);  .github/social-preview.png
 ngsw-config.json        service worker caching;  lighthouserc.json  Lighthouse gates
 ```
 
@@ -108,7 +111,7 @@ Path alias: `@cosmos-stories/carousel` and `@cosmos-stories/carousel/core` map t
 - **Input from the host:** `tick(now)` for time, `settle()` when a transition ends, `resolvePending()` after paint.
 - **State:** `index`, `position` (clones included), `count`, `renderedCount`, `dragOffset`, `phase`, `animate`, `playing`, `progress`, `hasPending`. Listeners get it through `subscribe`.
 
-**Renderer contract.** This is ADR 0001; every renderer must follow it:
+**Renderer contract.** Every renderer must follow it:
 
 1. Translate by `-position` slides plus `dragOffset` px.
 2. Animate only if `animate && phase !== 'dragging'`.
@@ -135,7 +138,7 @@ Path alias: `@cosmos-stories/carousel` and `@cosmos-stories/carousel/core` map t
 | `**`                                     | redirect `''`          |                                                                                                                 |
 
 - The **URL is the player state.** The player replaces the URL on every story change (`replaceUrl`), so Back closes the player instead of stepping through stories.
-- **Deep link opened directly:** Home does _not_ render the rings or banner until the player closes (`showContent`). See ADR 0004 for why this isn't "on idle".
+- **Deep link opened directly:** Home does _not_ render the rings or banner until the player closes (`showContent`). Rendering it "on idle" was measured and rejected: the idle callback landed in the busiest second and doubled Total Blocking Time.
 - **View Transitions:** a ring ↔ active story morph through the shared name `story-cover`.
 
 ### 5.4 Data flow
@@ -152,7 +155,7 @@ Browser
   BannerService.slides: [intro, ...latest APOD (5), playground outro]; intro/outro render before data
 ```
 
-## 6. Invariants — do not break
+## 6. Invariants - do not break
 
 These are the non-obvious rules. Each one exists because breaking it caused, or would cause, a real bug.
 
@@ -173,13 +176,13 @@ These are the non-obvious rules. Each one exists because breaking it caused, or 
 
 ## 7. Conventions
 
+- **House style applies** (last section): Prettier 120 columns without bracket spacing, sorted imports, explicit `public`/`protected`/`private` on every member.
 - **Angular style:** standalone components, `inject()` rather than constructor DI, `input()`/`output()`/`viewChild()`, signals and `computed`, `effect` only for side effects (with `untracked` for writes), new control flow (`@if`/`@for`/`@switch`). **No explicit `changeDetection: OnPush`** (the v22 default). Host listeners go in the `host: {}` metadata.
 - **Selectors:** `app-` / `app*` in the app, `ui-` / `ui*` in the library (enforced by ESLint).
 - **Class names:** Angular v20+ style, without the `Component` suffix for new code (`StoriesPlayer`, `Playground`). Older files (`CarouselComponent`, `SlideComponent`) keep theirs.
 - **TypeScript:** `import type` for types (lint-enforced), `readonly` everywhere by default. No `any`, no `as` casts and no `!` non-null assertions (lint-enforced in the strict preset); in tests use `queryRequired()` or type guards. The app tsconfig has `noPropertyAccessFromIndexSignature`, so use `record['key']`; script and e2e configs don't, and there ESLint prefers `record.key`.
 - **Comments explain _why_,** not what. Public APIs get TSDoc.
 - **CSS:** SCSS, BEM-ish class names (`block__element--modifier`), design tokens as CSS custom properties in `src/styles.scss`, and always a `prefers-reduced-motion` fallback. Component styles have a 6 kB warning budget.
-- **Docs language:** English (British spelling: "optimised", "colour"). User-facing strings are English.
 - **Commits:** Conventional Commits (`feat:`, `fix:`, `perf:`, `docs:`, `test:`, `chore:`), one logical change each.
 
 ## 8. Testing guide
@@ -207,11 +210,11 @@ These are the non-obvious rules. Each one exists because breaking it caused, or 
 - `expectStory()` also waits until no view transition is running. Its pseudo-elements swallow input.
 - Accessibility specs run with `reducedMotion: 'reduce'`, so nothing is mid-animation during the audit.
 - `workers: 2`, `expect.timeout: 10s`: gesture timing needs a responsive browser.
-- A sandbox without Playwright's own browser can set `PW_CHROMIUM_EXECUTABLE=/path/to/chrome`.
+- A sandbox without Playwright's own browser can set `CHROMIUM_PATH=/path/to/chrome`.
 
 ### Lighthouse
 
-`npx lhci autorun` runs 3 times per URL on home and a story page. Gates: accessibility, best practices and SEO = 100, CLS ≤ 0.02, performance an error < 85 and a warning < 95. Reports go to `lighthouse-report/`.
+`npm run lighthouse` runs 3 times per URL on home and a story page. Gates: accessibility, best practices and SEO = 100, CLS ≤ 0.02, performance an error < 85 and a warning < 95. Reports go to `lighthouse-report/`.
 
 ## 9. Recipes
 
@@ -235,16 +238,18 @@ These are the non-obvious rules. Each one exists because breaking it caused, or 
 
 ## 10. CI/CD (`.github/workflows/ci.yml`)
 
-| Job          | Runs                                                                                                                                     | Notes                                     |
-| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
-| `check`      | lint, types, unit + script tests, lib build, `data:fetch --strict` (not strict on PRs), app build, 404 copy, story pages, Pages artifact |                                           |
-| `e2e`        | Playwright (installs Chromium)                                                                                                           | **required for deploy**                   |
-| `lighthouse` | `lhci autorun`                                                                                                                           | reports uploaded; not required for deploy |
-| `deploy`     | GitHub Pages                                                                                                                             | `master` only; needs `check` + `e2e`      |
+| Job                      | Runs                                                                             | Notes                                           |
+| ------------------------ | -------------------------------------------------------------------------------- | ----------------------------------------------- |
+| _Lint and types_         | format check, ESLint + Stylelint, all tsconfigs                                  |                                                 |
+| _Unit tests_             | app + library tests, script tests, library build                                 |                                                 |
+| _Build_                  | `npm run e2e:build` (base href `/cosmos-stories/`, fixture data, story pages)    | uploaded as `test-build`                        |
+| _End-to-end_             | Playwright against `test-build` (`npm run e2e:run`)                              | required for deploy                             |
+| _Lighthouse_             | `lhci autorun` against `test-build`                                              | reports uploaded; not required for deploy       |
+| _Deploy to GitHub Pages_ | `data:fetch --strict` with `NASA_API_KEY`, build, 404 copy, story pages, publish | `master` pushes, the daily cron and manual runs |
 
-- Triggers: pushes to `master`, PRs, manual runs, and a **daily cron at 06:15 UTC** for fresh data. GitHub disables cron after 60 days without repository activity; re-enable it in the Actions tab.
-- Secret: `NASA_API_KEY`. Pages source: GitHub Actions. The `github-pages` environment must allow `master`.
-- Dependabot: grouped monthly PRs. Angular majors are ignored, because they're done by hand with `ng update`.
+- Triggers: pushes to `master`, pull requests, manual runs, and a **daily cron at 06:15 UTC** for fresh data. GitHub disables cron after 60 days without repository activity; re-enable it in the Actions tab.
+- One-time setup (also at the top of the workflow): Pages source "GitHub Actions"; the `github-pages` environment allows `master`; the `NASA_API_KEY` secret.
+- Dependabot: grouped monthly pull requests; Angular majors are done by hand with `ng update`.
 
 ## 11. Troubleshooting
 
@@ -262,16 +267,51 @@ These are the non-obvious rules. Each one exists because breaking it caused, or 
 | The service worker serves stale files locally                                           | The SW is only enabled in production builds. Clear site data or use `npm start`.                                                                    |
 | `data:fetch` in CI: "Only N usable entries"                                             | The API returned too little. The fallback snapshot is used; if it also fails, `--strict` fails the run and the live site keeps the previous deploy. |
 
-## 12. Docs discipline
-
-- **CHANGELOG.md:** every user-visible or architectural change, under the next version heading.
-- **ADR:** any decision with real trade-offs. Number sequentially and add it to `docs/adr/README.md` and the README table.
-- **README:** keep the feature list, scores table, scripts table and "What's next" accurate. Scores are _measured_, never guessed. Update `docs/screens/*` when the UI changes noticeably.
-- **Versions:** SemVer. App and library versions move together for now.
-
-## 13. Known limitations
+## 12. Known limitations
 
 - Lighthouse performance on mobile is ~89–96 depending on the run. What keeps it from a stable 95+ is Angular's bootstrap; prerendering or SSR is the planned fix (README, "What's next").
 - APOD videos: the length isn't known without provider player APIs, so a video pauses the story while it's open.
 - Deep links to stories that dropped out of the snapshot load through `404.html` (status 404, but the app works).
 - Seen state is per device (`localStorage`).
+
+## House style (identical in every repository of this portfolio)
+
+These five repositories are written as one body of work: [cosmos-stories](https://github.com/stiutin/cosmos-stories), [larder](https://github.com/stiutin/larder), [pixi-neon-district](https://github.com/stiutin/pixi-neon-district), [threejs-solar-system](https://github.com/stiutin/threejs-solar-system) and [threejs-icosphere](https://github.com/stiutin/threejs-icosphere). Keep them alike. When a convention changes, change it everywhere.
+
+**Shared files.** `LICENSE` (MIT, Serge Tiutin), `.editorconfig`, `.gitattributes`, `.nvmrc` (`24`), `.prettierrc`, `.prettierignore`, `.gitignore`, `.vscode/`, `.github/dependabot.yml` and the issue and PR templates are identical across the repositories, apart from a clearly marked `# Project` block at the end of the ignore files.
+
+**Formatting.** Prettier: 120 columns, single quotes, no spaces inside braces (`{a, b}`), trailing commas where ES5 allows them, always parenthesised arrow parameters. `npm run format` fixes everything, and `npm run format:check` runs in CI. ESLint does not format.
+
+**Linting.** `eslint.config.mjs` with `defineConfig`, and two shared blocks:
+
+- `HOUSE_RULES`: sorted imports and exports (`simple-import-sort`), no unused imports, `curly: all`, arrow bodies only where needed, no `console` except `warn` and `error`;
+- `HOUSE_TS_RULES` in TypeScript projects: explicit `public`/`protected`/`private` on every class member (never on constructors), `T[]` rather than `Array<T>`, and unused variables allowed only as `_`.
+
+`eslint-config-prettier` comes last. Each project adds its own strictness on top: `typescript-eslint` strict-type-checked in cosmos-stories and pixi-neon-district, Larder's own rule set (magic numbers, naming, member ordering, RxJS) in larder. Styles are linted by Stylelint with properties in alphabetical order; `-webkit-backdrop-filter` and `-webkit-user-select` stay, for Safari.
+
+**`package.json`.** The field order is name, version, description, license, author, repository, homepage, keywords, private, type, engines, scripts, dependencies, devDependencies. Dependencies are sorted, and `engines.node` is `>=22.22.3`. Scripts use the same names everywhere:
+
+| Script                                       | Meaning                                                                   |
+| -------------------------------------------- | ------------------------------------------------------------------------- |
+| `start`                                      | dev server                                                                |
+| `build`                                      | production build                                                          |
+| `serve`                                      | serve the production build like GitHub Pages does                         |
+| `test` / `test:watch`                        | unit tests (where the project has them)                                   |
+| `e2e` / `e2e:run` / `e2e:ui` / `e2e:install` | Playwright: build and test / test only / UI mode / download Chromium      |
+| `screenshots`                                | regenerate `.github/screenshots/*.png` for the README                     |
+| `lint` / `lint:fix`                          | ESLint and Stylelint                                                      |
+| `typecheck`                                  | TypeScript (TypeScript projects)                                          |
+| `format` / `format:check`                    | Prettier                                                                  |
+| `check`                                      | everything CI checks before building: formatting, lint, types, unit tests |
+
+**TypeScript.** Every TypeScript project has `strict` plus `noImplicitOverride`, `noImplicitReturns`, `noFallthroughCasesInSwitch` and `noUncheckedIndexedAccess`. Projects may add more (cosmos-stories: `noPropertyAccessFromIndexSignature`; pixi-neon-district: `exactOptionalPropertyTypes`, unused locals and parameters).
+
+**Dependencies.** The latest versions, with deliberate exceptions noted in each CLAUDE.md. In particular, TypeScript stays on 6.0 because `typescript-eslint` and Angular 22 do not support 7.0 yet.
+
+**Tests.** Every project has Playwright tests against its production build, on a desktop and a Pixel 7 viewport, served the way GitHub Pages serves it. `CHROMIUM_PATH` points Playwright and the screenshot scripts at a specific browser binary (useful in sandboxes). Projects with logic worth isolating also have Vitest unit tests.
+
+**CI.** `.github/workflows/ci.yml` with the same job names: _Lint and types_, _Unit tests_, _Build_, _End-to-end (Playwright)_, _Lighthouse_ (Angular projects), _Deploy to GitHub Pages_. It runs on `ubuntu-24.04`, reads the Node version from `.nvmrc`, and uses the same action versions everywhere. Deploys go from `master` only, and only after the gates pass. The header of the workflow lists the one-time repository settings; the `github-pages` environment must allow `master`.
+
+**Documentation.** The README follows one outline: title, one line, a paragraph, **Open the live demo**, screenshots, then _Features_, _Tech stack_, _How it works_, _Testing_ (a table), _Project structure_, _Running locally_, _Deployment_, _Roadmap_, _License_, _Author_. The voice is calm and specific, in British English, with no badges and no marketing adjectives. Explain _why_ in prose. There is no CHANGELOG and no ADR folder: decisions live in _How it works_ and in this file. `.github/social-preview.png` (1280×640) is the repository's social preview, and every project uses the same design.
+
+**Scripts and tooling.** Node scripts are `.mjs`. TypeScript scripts run through Node's type stripping, and are used only when they share code with the app (cosmos-stories). Scripts have a header comment with usage examples.

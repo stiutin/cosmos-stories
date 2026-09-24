@@ -5,5 +5,5 @@
 ## Checklist
 
 - [ ] `npm run check` passes
-- [ ] `npm run e2e` passes (for UI changes)
-- [ ] CHANGELOG updated; an ADR added for architectural decisions
+- [ ] End-to-end tests pass (`npm run e2e`) for UI changes
+- [ ] README and CLAUDE.md are still accurate

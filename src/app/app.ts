@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { UpdatePrompt } from './components/update-prompt/update-prompt';
+import {Component} from '@angular/core';
+import {RouterOutlet} from '@angular/router';
+
+import {UpdatePrompt} from './components/update-prompt/update-prompt';
 
 @Component({
   selector: 'app-root',

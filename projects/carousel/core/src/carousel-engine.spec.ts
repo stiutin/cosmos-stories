@@ -1,13 +1,12 @@
-import type { CarouselOptions, CarouselState } from './carousel-engine';
-import { CarouselEngine, DEFAULT_CAROUSEL_OPTIONS } from './carousel-engine';
+import type {CarouselOptions, CarouselState} from './carousel-engine';
+import {CarouselEngine, DEFAULT_CAROUSEL_OPTIONS} from './carousel-engine';
 
 function create(options: Partial<CarouselOptions> = {}, count = 3): CarouselEngine {
-  const engine = new CarouselEngine({ interval: 1000, ...options });
+  const engine = new CarouselEngine({interval: 1000, ...options});
   engine.setCount(count);
   return engine;
 }
 
-/** Simulates the renderer finishing the current transition. */
 function finish(engine: CarouselEngine): CarouselState {
   engine.settle();
   return engine.getState();
@@ -18,16 +17,16 @@ describe('CarouselEngine', () => {
     it('starts on the first slide, after the leading clone', () => {
       const state = create().getState();
 
-      expect(state).toMatchObject({ count: 3, index: 0, position: 1, renderedCount: 5 });
-      expect(state).toMatchObject({ phase: 'idle', playing: true, canPrev: true, canNext: true });
+      expect(state).toMatchObject({count: 3, index: 0, position: 1, renderedCount: 5});
+      expect(state).toMatchObject({phase: 'idle', playing: true, canPrev: true, canNext: true});
     });
 
     it('has no clones without looping', () => {
-      expect(create({ loop: false }).getState()).toMatchObject({ position: 0, renderedCount: 3 });
+      expect(create({loop: false}).getState()).toMatchObject({position: 0, renderedCount: 3});
     });
 
     it('respects autoplay: false', () => {
-      expect(create({ autoplay: false }).getState()).toMatchObject({
+      expect(create({autoplay: false}).getState()).toMatchObject({
         playing: false,
         paused: true,
       });
@@ -39,7 +38,7 @@ describe('CarouselEngine', () => {
       const engine = create();
       engine.next();
 
-      expect(engine.getState()).toMatchObject({ index: 1, position: 2, phase: 'animating' });
+      expect(engine.getState()).toMatchObject({index: 1, position: 2, phase: 'animating'});
       expect(engine.getState().animate).toBe(true);
       expect(finish(engine).phase).toBe('idle');
     });
@@ -50,26 +49,26 @@ describe('CarouselEngine', () => {
       finish(engine);
 
       engine.next();
-      expect(engine.getState()).toMatchObject({ index: 0, position: 4, animate: true });
+      expect(engine.getState()).toMatchObject({index: 0, position: 4, animate: true});
 
-      expect(finish(engine)).toMatchObject({ index: 0, position: 1, animate: false });
+      expect(finish(engine)).toMatchObject({index: 0, position: 1, animate: false});
     });
 
     it('goes backwards from the first slide through the leading clone', () => {
       const engine = create();
       engine.prev();
-      expect(engine.getState()).toMatchObject({ index: 2, position: 0 });
-      expect(finish(engine)).toMatchObject({ position: 3, animate: false });
+      expect(engine.getState()).toMatchObject({index: 2, position: 0});
+      expect(finish(engine)).toMatchObject({position: 3, animate: false});
     });
 
     it('queues a move that arrives before the clone jump was painted', () => {
       const engine = create();
       engine.goTo(2);
       finish(engine);
-      engine.next(); // onto the clone at position 4, not settled yet
+      engine.next();
 
       engine.next();
-      expect(engine.getState()).toMatchObject({ position: 1, animate: false, hasPending: true });
+      expect(engine.getState()).toMatchObject({position: 1, animate: false, hasPending: true});
 
       engine.resolvePending();
       expect(engine.getState()).toMatchObject({
@@ -84,12 +83,12 @@ describe('CarouselEngine', () => {
       const engine = create();
       engine.goTo(2);
       finish(engine);
-      engine.next(); // clone of slide 0 at position 4
+      engine.next();
 
       engine.goTo(1);
-      expect(engine.getState()).toMatchObject({ position: 1, hasPending: true });
+      expect(engine.getState()).toMatchObject({position: 1, hasPending: true});
       engine.resolvePending();
-      expect(engine.getState()).toMatchObject({ index: 1, position: 2 });
+      expect(engine.getState()).toMatchObject({index: 1, position: 2});
     });
 
     it('ignores goTo to the current slide or out of range', () => {
@@ -105,18 +104,18 @@ describe('CarouselEngine', () => {
 
   describe('without looping', () => {
     it('stops at the ends', () => {
-      const engine = create({ loop: false });
+      const engine = create({loop: false});
       engine.prev();
-      expect(engine.getState()).toMatchObject({ index: 0, canPrev: false });
+      expect(engine.getState()).toMatchObject({index: 0, canPrev: false});
 
       engine.goTo(2);
       finish(engine);
       engine.next();
-      expect(engine.getState()).toMatchObject({ index: 2, canNext: false });
+      expect(engine.getState()).toMatchObject({index: 2, canNext: false});
     });
 
     it('damps dragging past an edge', () => {
-      const engine = create({ loop: false, edgeResistance: 0.5 });
+      const engine = create({loop: false, edgeResistance: 0.5});
       engine.dragStart();
 
       engine.dragMove(100);
@@ -126,7 +125,7 @@ describe('CarouselEngine', () => {
     });
 
     it('rewinds to the first slide when autoplay reaches the end', () => {
-      const engine = create({ loop: false });
+      const engine = create({loop: false});
       engine.goTo(2);
       finish(engine);
 
@@ -138,7 +137,7 @@ describe('CarouselEngine', () => {
 
   describe('without animation (reduced motion)', () => {
     it('jumps straight to real slides and never rests on a clone', () => {
-      const engine = create({ animated: false });
+      const engine = create({animated: false});
       engine.prev();
 
       expect(engine.getState()).toMatchObject({
@@ -156,7 +155,7 @@ describe('CarouselEngine', () => {
       engine.dragStart();
       engine.dragMove(-40);
 
-      expect(engine.getState()).toMatchObject({ phase: 'dragging', dragOffset: -40, paused: true });
+      expect(engine.getState()).toMatchObject({phase: 'dragging', dragOffset: -40, paused: true});
       expect(engine.isPausedBy('drag')).toBe(true);
     });
 
@@ -164,22 +163,22 @@ describe('CarouselEngine', () => {
       const engine = create();
       engine.dragStart();
       engine.dragEnd(1);
-      expect(engine.getState()).toMatchObject({ index: 1, dragOffset: 0, animate: true });
+      expect(engine.getState()).toMatchObject({index: 1, dragOffset: 0, animate: true});
 
       finish(engine);
       engine.dragStart();
       engine.dragMove(-20);
       engine.dragEnd(0);
-      expect(engine.getState()).toMatchObject({ index: 1, dragOffset: 0, phase: 'idle' });
+      expect(engine.getState()).toMatchObject({index: 1, dragOffset: 0, phase: 'idle'});
       expect(engine.isPausedBy('drag')).toBe(false);
     });
 
     it('settles a clone before dragging so the drag starts from a real slide', () => {
       const engine = create();
-      engine.prev(); // leading clone
+      engine.prev();
       engine.dragStart();
 
-      expect(engine.getState()).toMatchObject({ position: 3, phase: 'dragging' });
+      expect(engine.getState()).toMatchObject({position: 3, phase: 'dragging'});
     });
 
     it('ignores drags with a single slide', () => {
@@ -197,7 +196,7 @@ describe('CarouselEngine', () => {
       expect(engine.getState().progress).toBeCloseTo(0.5);
 
       engine.tick(1000);
-      expect(engine.getState()).toMatchObject({ index: 1, progress: 0 });
+      expect(engine.getState()).toMatchObject({index: 1, progress: 0});
     });
 
     it('can be paused, resumed and toggled', () => {
@@ -205,11 +204,11 @@ describe('CarouselEngine', () => {
       engine.pause();
       engine.tick(0);
       engine.tick(5000);
-      expect(engine.getState()).toMatchObject({ index: 0, playing: false });
+      expect(engine.getState()).toMatchObject({index: 0, playing: false});
 
       engine.toggle();
       engine.tick(6000);
-      expect(engine.getState()).toMatchObject({ index: 1, playing: true });
+      expect(engine.getState()).toMatchObject({index: 1, playing: true});
     });
 
     it('stays paused while any temporary reason holds', () => {
@@ -220,7 +219,7 @@ describe('CarouselEngine', () => {
       engine.tick(0);
       engine.tick(5000);
 
-      expect(engine.getState()).toMatchObject({ index: 0, playing: true, paused: true });
+      expect(engine.getState()).toMatchObject({index: 0, playing: true, paused: true});
     });
 
     it('restarts the cycle after manual navigation', () => {
@@ -246,10 +245,10 @@ describe('CarouselEngine', () => {
       engine.goTo(2);
       finish(engine);
 
-      engine.setOptions({ loop: false });
-      expect(engine.getState()).toMatchObject({ index: 2, position: 2, renderedCount: 3 });
-      engine.setOptions({ loop: true });
-      expect(engine.getState()).toMatchObject({ index: 2, position: 3, renderedCount: 5 });
+      engine.setOptions({loop: false});
+      expect(engine.getState()).toMatchObject({index: 2, position: 2, renderedCount: 3});
+      engine.setOptions({loop: true});
+      expect(engine.getState()).toMatchObject({index: 2, position: 3, renderedCount: 5});
     });
 
     it('clamps the index when slides are removed', () => {
@@ -258,7 +257,7 @@ describe('CarouselEngine', () => {
       finish(engine);
       engine.setCount(2);
 
-      expect(engine.getState()).toMatchObject({ count: 2, index: 1 });
+      expect(engine.getState()).toMatchObject({count: 2, index: 1});
     });
   });
 
@@ -268,7 +267,7 @@ describe('CarouselEngine', () => {
       const listener = vi.fn();
       const unsubscribe = engine.subscribe(listener);
 
-      engine.goTo(0); // no change
+      engine.goTo(0);
       expect(listener).not.toHaveBeenCalled();
 
       engine.next();
@@ -290,8 +289,8 @@ describe('CarouselEngine', () => {
     });
 
     it('merges options with the defaults', () => {
-      const engine = new CarouselEngine({ interval: 500 });
-      expect(engine.getOptions()).toEqual({ ...DEFAULT_CAROUSEL_OPTIONS, interval: 500 });
+      const engine = new CarouselEngine({interval: 500});
+      expect(engine.getOptions()).toEqual({...DEFAULT_CAROUSEL_OPTIONS, interval: 500});
     });
   });
 });

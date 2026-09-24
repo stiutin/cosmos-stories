@@ -1,9 +1,9 @@
-import { computed, signal } from '@angular/core';
-import { groupStories } from './apod.groups';
-import type { ApodEntry } from './apod.model';
-import type { ApodService } from './apod.service';
+import {computed, signal} from '@angular/core';
 
-/** A signal-based stand-in for `ApodService` in component tests. */
+import {groupStories} from './apod.groups';
+import type {ApodEntry} from './apod.model';
+import type {ApodService} from './apod.service';
+
 export function fakeApodService(initial: readonly ApodEntry[] = []) {
   const entries = signal<readonly ApodEntry[]>(initial);
   const fake = {

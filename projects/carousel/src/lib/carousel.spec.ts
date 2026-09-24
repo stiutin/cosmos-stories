@@ -1,10 +1,11 @@
-import { Component, signal } from '@angular/core';
-import type { ComponentFixture } from '@angular/core/testing';
-import { TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
-import type { SwipeAxis } from '@cosmos-stories/carousel/core';
-import { UiCarousel } from './carousel';
-import { UiCarouselSlide } from './carousel-slide.directive';
+import {Component, signal} from '@angular/core';
+import type {ComponentFixture} from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing';
+import {By} from '@angular/platform-browser';
+import type {SwipeAxis} from '@cosmos-stories/carousel/core';
+
+import {UiCarousel} from './carousel';
+import {UiCarouselSlide} from './carousel-slide.directive';
 
 const INTERVAL = 1000;
 const TRANSITION = 380;
@@ -32,14 +33,14 @@ const SETTLE = TRANSITION + 100;
   `,
 })
 class Host {
-  readonly items = signal(['a', 'b', 'c']);
-  readonly loop = signal(true);
-  readonly autoplay = signal(true);
-  readonly controls = signal(true);
-  readonly orientation = signal<SwipeAxis>('horizontal');
-  readonly interval = INTERVAL;
-  readonly changes: number[] = [];
-  readonly itemLabel = (item: string): string => `Item ${item}`;
+  public readonly items = signal(['a', 'b', 'c']);
+  public readonly loop = signal(true);
+  public readonly autoplay = signal(true);
+  public readonly controls = signal(true);
+  public readonly orientation = signal<SwipeAxis>('horizontal');
+  public readonly interval = INTERVAL;
+  public readonly changes: number[] = [];
+  public readonly itemLabel = (item: string): string => `Item ${item}`;
 }
 
 describe('UiCarousel', () => {
@@ -53,12 +54,9 @@ describe('UiCarousel', () => {
     if (!found) throw new Error(`${selector} not found`);
     return found;
   };
-  const slides = (): HTMLElement[] => [
-    ...element.querySelectorAll<HTMLElement>('.ui-carousel__slide'),
-  ];
+  const slides = (): HTMLElement[] => [...element.querySelectorAll<HTMLElement>('.ui-carousel__slide')];
   const dots = (): HTMLElement[] => [...element.querySelectorAll<HTMLElement>('.ui-carousel__dot')];
-  const activeLabel = (): string | null =>
-    query('.ui-carousel__slide--active').getAttribute('aria-label');
+  const activeLabel = (): string | null => query('.ui-carousel__slide--active').getAttribute('aria-label');
   const track = (): HTMLElement => query('.ui-carousel__track');
   const region = (): HTMLElement => query('.ui-carousel');
 
@@ -68,7 +66,7 @@ describe('UiCarousel', () => {
   }
 
   function press(key: string): void {
-    region().dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+    region().dispatchEvent(new KeyboardEvent('keydown', {key, bubbles: true}));
     fixture.detectChanges();
   }
 
@@ -80,19 +78,19 @@ describe('UiCarousel', () => {
         pointerId: 1,
         pointerType: 'touch',
         ...init,
-      }),
+      })
     );
     fixture.detectChanges();
   }
 
   function swipe(from: [number, number], to: [number, number]): void {
-    pointer('pointerdown', { clientX: from[0], clientY: from[1] });
+    pointer('pointerdown', {clientX: from[0], clientY: from[1]});
     pointer('pointermove', {
       clientX: (from[0] + to[0]) / 2,
       clientY: (from[1] + to[1]) / 2,
     });
-    pointer('pointermove', { clientX: to[0], clientY: to[1] });
-    pointer('pointerup', { clientX: to[0], clientY: to[1] });
+    pointer('pointermove', {clientX: to[0], clientY: to[1]});
+    pointer('pointerup', {clientX: to[0], clientY: to[1]});
   }
 
   async function setUp(configure: (host: Host) => void = () => undefined): Promise<void> {
@@ -101,10 +99,9 @@ describe('UiCarousel', () => {
     configure(host);
     fixture.detectChanges();
     element = fixture.nativeElement as HTMLElement;
-    carousel = fixture.debugElement.query(By.directive(UiCarousel))
-      .componentInstance as UiCarousel<string>;
-    Object.defineProperty(region(), 'clientWidth', { value: 400 });
-    Object.defineProperty(region(), 'clientHeight', { value: 800 });
+    carousel = fixture.debugElement.query(By.directive(UiCarousel)).componentInstance as UiCarousel<string>;
+    Object.defineProperty(region(), 'clientWidth', {value: 400});
+    Object.defineProperty(region(), 'clientHeight', {value: 800});
     await wait(0);
   }
 
@@ -131,24 +128,14 @@ describe('UiCarousel', () => {
         'c:2',
         'a:0',
       ]);
-      expect(slides().map((slide) => slide.getAttribute('aria-hidden'))).toEqual([
-        'true',
-        null,
-        null,
-        null,
-        'true',
-      ]);
+      expect(slides().map((slide) => slide.getAttribute('aria-hidden'))).toEqual(['true', null, null, null, 'true']);
     });
 
     it('exposes the WAI-ARIA carousel structure', () => {
       expect(region().getAttribute('aria-roledescription')).toBe('carousel');
       expect(region().getAttribute('aria-label')).toBe('Test carousel');
       expect(activeLabel()).toBe('1 of 3');
-      expect(dots().map((dot) => dot.getAttribute('aria-label'))).toEqual([
-        'Item a',
-        'Item b',
-        'Item c',
-      ]);
+      expect(dots().map((dot) => dot.getAttribute('aria-label'))).toEqual(['Item a', 'Item b', 'Item c']);
     });
 
     it('makes every slide except the active one inert', () => {
@@ -201,8 +188,8 @@ describe('UiCarousel', () => {
       fixture.detectChanges();
       expect(track().style.transform).toContain('calc(0% ');
 
-      const event = new Event('transitionend', { bubbles: true });
-      Object.defineProperty(event, 'propertyName', { value: 'transform' });
+      const event = new Event('transitionend', {bubbles: true});
+      Object.defineProperty(event, 'propertyName', {value: 'transform'});
       track().dispatchEvent(event);
       fixture.detectChanges();
 
@@ -212,13 +199,13 @@ describe('UiCarousel', () => {
     it('queues a move requested before the jump off a clone is painted', async () => {
       carousel.goTo(2);
       await wait(SETTLE);
-      carousel.next(); // animating onto the trailing clone
+      carousel.next();
       fixture.detectChanges();
-      carousel.next(); // arrives before settling
+      carousel.next();
       fixture.detectChanges();
-      expect(track().style.transform).toContain('-100%'); // jumped off the clone first
+      expect(track().style.transform).toContain('-100%');
 
-      await wait(50); // two animation frames later the queued move runs
+      await wait(50);
       expect(carousel.index()).toBe(1);
       expect(track().style.transform).toContain('-200%');
     });
@@ -277,40 +264,38 @@ describe('UiCarousel', () => {
     });
 
     it('pauses while a mouse hovers over the carousel', async () => {
-      pointer('pointerenter', { pointerType: 'mouse', bubbles: false });
+      pointer('pointerenter', {pointerType: 'mouse', bubbles: false});
       await wait(INTERVAL * 2);
       expect(carousel.index()).toBe(0);
 
-      pointer('pointerleave', { pointerType: 'mouse', bubbles: false });
+      pointer('pointerleave', {pointerType: 'mouse', bubbles: false});
       await wait(INTERVAL + 50);
       expect(carousel.index()).toBe(1);
     });
 
     it('ignores hover from touch pointers', () => {
-      pointer('pointerenter', { pointerType: 'touch', bubbles: false });
+      pointer('pointerenter', {pointerType: 'touch', bubbles: false});
       expect(carousel.isPausedBy('hover')).toBe(false);
     });
 
     it('pauses while focus is inside and resumes when it leaves', () => {
       const link = query('.ui-carousel__slide--active .content-link');
-      link.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+      link.dispatchEvent(new FocusEvent('focusin', {bubbles: true}));
       expect(carousel.isPausedBy('focus')).toBe(true);
 
-      link.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: dots()[0] }));
+      link.dispatchEvent(new FocusEvent('focusout', {bubbles: true, relatedTarget: dots()[0]}));
       expect(carousel.isPausedBy('focus')).toBe(true);
 
-      link.dispatchEvent(
-        new FocusEvent('focusout', { bubbles: true, relatedTarget: document.body }),
-      );
+      link.dispatchEvent(new FocusEvent('focusout', {bubbles: true, relatedTarget: document.body}));
       expect(carousel.isPausedBy('focus')).toBe(false);
     });
 
     it('pauses in hidden tabs', () => {
-      Object.defineProperty(document, 'hidden', { configurable: true, value: true });
+      Object.defineProperty(document, 'hidden', {configurable: true, value: true});
       document.dispatchEvent(new Event('visibilitychange'));
       expect(carousel.isPausedBy('hidden')).toBe(true);
 
-      Object.defineProperty(document, 'hidden', { configurable: true, value: false });
+      Object.defineProperty(document, 'hidden', {configurable: true, value: false});
       document.dispatchEvent(new Event('visibilitychange'));
       expect(carousel.isPausedBy('hidden')).toBe(false);
     });
@@ -336,8 +321,8 @@ describe('UiCarousel', () => {
     });
 
     it('follows the pointer while dragging', () => {
-      pointer('pointerdown', { clientX: 300, clientY: 100 });
-      pointer('pointermove', { clientX: 260, clientY: 100 });
+      pointer('pointerdown', {clientX: 300, clientY: 100});
+      pointer('pointermove', {clientX: 260, clientY: 100});
 
       expect(track().style.transform).toContain('+ -40px');
       expect(track().style.transition).toBe('none');
@@ -345,8 +330,8 @@ describe('UiCarousel', () => {
     });
 
     it('snaps back when the system cancels the gesture', () => {
-      pointer('pointerdown', { clientX: 300, clientY: 100 });
-      pointer('pointermove', { clientX: 200, clientY: 100 });
+      pointer('pointerdown', {clientX: 300, clientY: 100});
+      pointer('pointermove', {clientX: 200, clientY: 100});
       pointer('pointercancel');
 
       expect(carousel.index()).toBe(0);
@@ -364,10 +349,10 @@ describe('UiCarousel', () => {
       const link = query('.ui-carousel__slide--active .content-link');
       link.addEventListener('click', clicked);
 
-      pointer('pointerdown', { clientX: 300, clientY: 100, pointerType: 'mouse', button: 0 });
-      pointer('pointermove', { clientX: 250, clientY: 100, pointerType: 'mouse' });
-      pointer('pointerup', { clientX: 250, clientY: 100, pointerType: 'mouse' });
-      link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      pointer('pointerdown', {clientX: 300, clientY: 100, pointerType: 'mouse', button: 0});
+      pointer('pointermove', {clientX: 250, clientY: 100, pointerType: 'mouse'});
+      pointer('pointerup', {clientX: 250, clientY: 100, pointerType: 'mouse'});
+      link.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
 
       expect(clicked).not.toHaveBeenCalled();
     });
@@ -379,20 +364,20 @@ describe('UiCarousel', () => {
       const link = query('.ui-carousel__slide--active .content-link');
       link.addEventListener('click', clicked);
 
-      pointer('pointerdown', { clientX: 300, clientY: 100, pointerType: 'mouse', button: 0 });
-      pointer('pointerup', { clientX: 301, clientY: 100, pointerType: 'mouse' });
-      link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      pointer('pointerdown', {clientX: 300, clientY: 100, pointerType: 'mouse', button: 0});
+      pointer('pointerup', {clientX: 301, clientY: 100, pointerType: 'mouse'});
+      link.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
 
       expect(clicked).toHaveBeenCalledOnce();
     });
 
     it('ignores secondary mouse buttons and non-primary pointers', () => {
-      pointer('pointerdown', { clientX: 300, clientY: 100, pointerType: 'mouse', button: 2 });
-      pointer('pointermove', { clientX: 100, clientY: 100, pointerType: 'mouse' });
-      pointer('pointerup', { clientX: 100, clientY: 100, pointerType: 'mouse' });
-      pointer('pointerdown', { clientX: 300, clientY: 100, isPrimary: false, pointerId: 2 });
-      pointer('pointermove', { clientX: 100, clientY: 100, pointerId: 2 });
-      pointer('pointerup', { clientX: 100, clientY: 100, pointerId: 2 });
+      pointer('pointerdown', {clientX: 300, clientY: 100, pointerType: 'mouse', button: 2});
+      pointer('pointermove', {clientX: 100, clientY: 100, pointerType: 'mouse'});
+      pointer('pointerup', {clientX: 100, clientY: 100, pointerType: 'mouse'});
+      pointer('pointerdown', {clientX: 300, clientY: 100, isPrimary: false, pointerId: 2});
+      pointer('pointermove', {clientX: 100, clientY: 100, pointerId: 2});
+      pointer('pointerup', {clientX: 100, clientY: 100, pointerId: 2});
 
       expect(carousel.index()).toBe(0);
     });

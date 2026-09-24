@@ -1,10 +1,6 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
-import { SwUpdate } from '@angular/service-worker';
+import {Component, DestroyRef, inject, signal} from '@angular/core';
+import {SwUpdate} from '@angular/service-worker';
 
-/**
- * The daily build brings new pictures. When the service worker has downloaded
- * a new version, offer to switch to it instead of silently keeping the old one.
- */
 @Component({
   selector: 'app-update-prompt',
   template: `
@@ -12,14 +8,7 @@ import { SwUpdate } from '@angular/service-worker';
       <div class="prompt" role="status">
         <span>New space pictures are ready.</span>
         <button type="button" (click)="reload()">Refresh</button>
-        <button
-          type="button"
-          class="prompt__dismiss"
-          aria-label="Dismiss"
-          (click)="ready.set(false)"
-        >
-          ✕
-        </button>
+        <button type="button" class="prompt__dismiss" aria-label="Dismiss" (click)="ready.set(false)">✕</button>
       </div>
     }
   `,
@@ -67,9 +56,11 @@ export class UpdatePrompt {
 
   constructor() {
     if (!this.updates.isEnabled) return;
+
     const subscription = this.updates.versionUpdates.subscribe((event) => {
       if (event.type === 'VERSION_READY') this.ready.set(true);
     });
+
     inject(DestroyRef).onDestroy(() => {
       subscription.unsubscribe();
     });

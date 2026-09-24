@@ -1,6 +1,5 @@
-import { Component, computed, input } from '@angular/core';
+import {Component, computed, input} from '@angular/core';
 
-/** Segmented progress bars: done, current (partially filled), upcoming. */
 @Component({
   selector: 'app-story-progress',
   template: `
@@ -29,20 +28,14 @@ import { Component, computed, input } from '@angular/core';
       transform-origin: left center;
     }
   `,
-  host: { 'aria-hidden': 'true' },
+  host: {'aria-hidden': 'true'},
 })
 export class StoryProgress {
-  readonly count = input.required<number>();
-  readonly index = input.required<number>();
-  /**
-   * Initial fill of the current segment. While a story plays, the player paints the
-   * current segment directly from its frame loop (no change detection per frame).
-   */
-  readonly progress = input(0);
+  public readonly count = input.required<number>();
+  public readonly index = input.required<number>();
+  public readonly progress = input(0);
 
   protected readonly segments = computed(() =>
-    Array.from({ length: this.count() }, (_, i) =>
-      i < this.index() ? 1 : i === this.index() ? this.progress() : 0,
-    ),
+    Array.from({length: this.count()}, (_, i) => (i < this.index() ? 1 : i === this.index() ? this.progress() : 0))
   );
 }

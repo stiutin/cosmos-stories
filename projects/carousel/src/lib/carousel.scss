@@ -1,7 +1,6 @@
-// Theming hooks: set these custom properties on the element or any ancestor.
 $control-color: var(--ui-carousel-control-color, #fff);
-$control-muted: var(--ui-carousel-control-muted, rgba(255, 255, 255, 0.35));
-$control-bg: var(--ui-carousel-control-bg, rgba(0, 0, 0, 0.4));
+$control-muted: var(--ui-carousel-control-muted, rgb(255 255 255 / 35%));
+$control-bg: var(--ui-carousel-control-bg, rgb(0 0 0 / 40%));
 $focus-color: var(--ui-carousel-focus-color, #fff);
 
 :host {
@@ -17,7 +16,6 @@ $focus-color: var(--ui-carousel-focus-color, #fff);
   user-select: none;
   width: 100%;
 
-  // The region is focusable so arrow keys work right after tabbing in.
   &:focus-visible {
     outline: 3px solid $focus-color;
     outline-offset: -3px;
@@ -59,11 +57,8 @@ $focus-color: var(--ui-carousel-focus-color, #fff);
 }
 
 .ui-carousel--vertical .ui-carousel__controls {
-  bottom: auto;
   flex-direction: column;
-  left: auto;
-  right: 16px;
-  top: 50%;
+  inset: 50% 16px auto auto;
   transform: translateY(-50%);
 }
 
@@ -81,7 +76,7 @@ $focus-color: var(--ui-carousel-focus-color, #fff);
   width: 32px;
 
   svg {
-    fill: currentColor;
+    fill: currentcolor;
     height: 12px;
     width: 12px;
   }
@@ -95,7 +90,6 @@ $focus-color: var(--ui-carousel-focus-color, #fff);
   flex-direction: column;
 }
 
-// The button is a 24×24 px touch target (WCAG 2.5.8); the visible pill sits inside it.
 .ui-carousel__dot {
   align-items: center;
   background: none;
@@ -127,17 +121,15 @@ $focus-color: var(--ui-carousel-focus-color, #fff);
   width: 26px;
 }
 
-// While autoplay runs, the active pill doubles as a progress bar.
 .ui-carousel__dot--active .ui-carousel__dot-pill:has(.ui-carousel__dot-fill) {
   background: $control-muted;
 }
 
 .ui-carousel__dot-fill {
-  // Painted by the frame loop; starts empty.
-  transform: scaleX(0);
   background: $control-color;
   inset: 0;
   position: absolute;
+  transform: scaleX(0);
   transform-origin: left center;
 }
 

@@ -1,3 +1,10 @@
+# CI: quality gates on every push and pull request; deploy to GitHub Pages from the default branch.
+# A daily run rebuilds the site with the newest NASA Astronomy Picture of the Day.
+#
+# One-time repository setup:
+#   Settings → Pages → Source: GitHub Actions
+#   Settings → Environments → github-pages → Deployment branches: allow the default branch (master)
+#   Settings → Secrets and variables → Actions → NASA_API_KEY (free key from https://api.nasa.gov)
 name: CI
 
 on:
@@ -5,7 +12,7 @@ on:
     branches: [master]
   pull_request:
   workflow_dispatch:
-  # Daily rebuild with fresh APOD data. APOD publishes around midnight US Eastern time.
+  # APOD publishes around midnight US Eastern time.
   schedule:
     - cron: '15 6 * * *'
 
@@ -17,8 +24,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check:
-    name: Lint, unit tests, build
+  quality:
+    name: Lint and types
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
@@ -29,33 +36,10 @@ jobs:
       - run: npm ci
       - run: npm run format:check
       - run: npm run lint
-      - run: npm run typecheck:scripts
-      - run: npm test
-      - run: npm run test:scripts
-      # The library must stay publishable on its own, not just usable from the app.
-      - run: npm run build:lib
-      # Real data needs the NASA_API_KEY secret, which pull requests don't get: they build with the sample.
-      # On master, a failed fetch falls back to the currently deployed snapshot; with no real data at all,
-      # --strict fails the run and the live site keeps its previous deployment.
-      - name: Fetch APOD snapshot
-        run: npm run data:fetch -- $STRICT
-        env:
-          STRICT: ${{ github.event_name != 'pull_request' && '--strict' || '' }}
-          NASA_API_KEY: ${{ secrets.NASA_API_KEY }}
-          APOD_FALLBACK_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/data/apod.json
-      # The base href follows the repository name, so the build keeps working after a rename.
-      - run: npm run build -- --base-href "/${{ github.event.repository.name }}/"
-      # GitHub Pages serves 404.html for unknown paths: this lets deep links reach the Angular router.
-      - run: cp dist/cosmos-stories/browser/index.html dist/cosmos-stories/browser/404.html
-      # Every story in the snapshot also gets its own page, so shared links load with 200 OK.
-      - run: node scripts/story-pages.ts
-      - uses: actions/upload-pages-artifact@v5
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
-        with:
-          path: dist/cosmos-stories/browser
+      - run: npm run typecheck
 
-  e2e:
-    name: End-to-end tests (Playwright)
+  unit:
+    name: Unit tests
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
@@ -64,19 +48,56 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - run: npm test
+      - run: npm run test:scripts
+      # The carousel library must stay publishable on its own.
+      - run: npm run build:lib
+
+  build:
+    name: Build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      # Built for /cosmos-stories/ with the fixture data: deterministic content for the jobs below.
       - run: npm run e2e:build
-      - run: npm run e2e
+      - uses: actions/upload-artifact@v7
+        with:
+          name: test-build
+          path: dist/
+          include-hidden-files: true
+
+  e2e:
+    name: End-to-end (Playwright)
+    runs-on: ubuntu-24.04
+    needs: build
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v8
+        with:
+          name: test-build
+          path: dist/
+      - run: npx playwright install --with-deps chromium
+      - run: npm run e2e:run
       - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-report
-          path: playwright-report
-          retention-days: 14
+          path: playwright-report/
 
   lighthouse:
     name: Lighthouse
     runs-on: ubuntu-24.04
+    needs: build
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -84,28 +105,56 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - run: npm run e2e:build
-      # Accessibility, best practices, SEO and layout stability are hard gates;
-      # the performance score is a gate at 85 and a warning below 95 (see lighthouserc.json).
+      - uses: actions/download-artifact@v8
+        with:
+          name: test-build
+          path: dist/
+      # Accessibility, best practices, SEO and CLS are hard gates; performance fails below 85
+      # and warns below 95 (see lighthouserc.json).
       - run: npx lhci autorun
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: lighthouse-report
-          path: lighthouse-report
-          retention-days: 14
+          name: lighthouse
+          path: lighthouse-report/
 
+  # Deploys to GitHub Pages after every green push to the default branch, and on the daily schedule.
   deploy:
     name: Deploy to GitHub Pages
-    needs: [check, e2e]
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+    if: (github.event_name == 'push' && github.ref_name == github.event.repository.default_branch) || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    needs: [quality, unit, e2e]
     runs-on: ubuntu-24.04
     permissions:
+      contents: read
       pages: write
       id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      BASE_HREF: /${{ github.event.repository.name }}/
     steps:
-      - id: deployment
-        uses: actions/deploy-pages@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - uses: actions/configure-pages@v6
+      # Real NASA data. A failed fetch falls back to the deployed snapshot; with no real data at all,
+      # --strict fails the run and the live site keeps its previous deployment.
+      - name: Fetch the APOD snapshot
+        run: npm run data:fetch -- --strict
+        env:
+          NASA_API_KEY: ${{ secrets.NASA_API_KEY }}
+          APOD_FALLBACK_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/data/apod.json
+      - run: npm run build -- --base-href "$BASE_HREF"
+      # GitHub Pages serves 404.html for unknown paths, so deep links reach the Angular router;
+      # every story in the snapshot also gets its own page, so shared links load with 200 OK.
+      - run: cp dist/cosmos-stories/browser/index.html dist/cosmos-stories/browser/404.html
+      - run: node scripts/story-pages.ts
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist/cosmos-stories/browser
+      - uses: actions/deploy-pages@v5
+        id: deployment

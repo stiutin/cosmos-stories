@@ -1,15 +1,10 @@
-import { signal } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
-import type { ApodEntry } from '../data/apod/apod.model';
-import { ApodService } from '../data/apod/apod.service';
-import { makeEntry } from '../data/apod/apod.testing';
-import {
-  APOD_SLIDE_COUNT,
-  apodToSlide,
-  BannerService,
-  excerpt,
-  formatApodDate,
-} from './banner.service';
+import {signal} from '@angular/core';
+import {TestBed} from '@angular/core/testing';
+
+import type {ApodEntry} from '../data/apod/apod.model';
+import {ApodService} from '../data/apod/apod.service';
+import {makeEntry} from '../data/apod/apod.testing';
+import {APOD_SLIDE_COUNT, apodToSlide, BannerService, excerpt, formatApodDate} from './banner.service';
 
 describe('formatApodDate', () => {
   it('formats the date in UTC, whatever the local time zone', () => {
@@ -23,8 +18,7 @@ describe('excerpt', () => {
   });
 
   it('keeps whole sentences that fit', () => {
-    const text =
-      'First sentence here. Second one is here too! A third sentence that is too long to fit.';
+    const text = 'First sentence here. Second one is here too! A third sentence that is too long to fit.';
     expect(excerpt(text, 45)).toBe('First sentence here. Second one is here too!');
   });
 
@@ -36,7 +30,7 @@ describe('excerpt', () => {
 
 describe('apodToSlide', () => {
   it('shows an image entry as a full photo slide that opens its story', () => {
-    const slide = apodToSlide(makeEntry('2026-09-20', { title: 'The Helix Nebula' }));
+    const slide = apodToSlide(makeEntry('2026-09-20', {title: 'The Helix Nebula'}));
 
     expect(slide).toMatchObject({
       id: 'apod-2026-09-20',
@@ -52,15 +46,13 @@ describe('apodToSlide', () => {
   });
 
   it('credits copyrighted media', () => {
-    expect(apodToSlide(makeEntry('2026-09-20', { copyright: 'Jane Doe' }))?.credit).toBe(
-      'Image © Jane Doe',
-    );
+    expect(apodToSlide(makeEntry('2026-09-20', {copyright: 'Jane Doe'}))?.credit).toBe('Image © Jane Doe');
   });
 
   it('uses the thumbnail of a video, or skips a video without one', () => {
     const video = (thumbnailUrl: string | null): ApodEntry =>
       makeEntry('2026-09-20', {
-        media: { kind: 'video', embedUrl: 'https://www.youtube.com/embed/x', thumbnailUrl },
+        media: {kind: 'video', embedUrl: 'https://www.youtube.com/embed/x', thumbnailUrl},
       });
 
     expect(apodToSlide(video('https://img.youtube.com/vi/x/0.jpg'))).toMatchObject({
@@ -97,16 +89,12 @@ describe('BannerService', () => {
     expect(
       TestBed.inject(BannerService)
         .slides()
-        .map((slide) => slide.id),
+        .map((slide) => slide.id)
     ).toEqual(['intro', 'playground']);
   });
 
   it('frames the latest APOD entries with the intro and outro slides', () => {
-    entries.set(
-      Array.from({ length: 9 }, (_, index) =>
-        makeEntry(`2026-09-${String(20 - index).padStart(2, '0')}`),
-      ),
-    );
+    entries.set(Array.from({length: 9}, (_, index) => makeEntry(`2026-09-${String(20 - index).padStart(2, '0')}`)));
     const ids = TestBed.inject(BannerService)
       .slides()
       .map((slide) => slide.id);

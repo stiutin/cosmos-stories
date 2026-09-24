@@ -1,9 +1,10 @@
-import { signal } from '@angular/core';
-import type { ComponentFixture } from '@angular/core/testing';
-import { TestBed } from '@angular/core/testing';
-import type { Slide } from '../../models/slide.model';
-import { BannerService } from '../../services/banner.service';
-import { CarouselComponent } from './carousel';
+import {signal} from '@angular/core';
+import type {ComponentFixture} from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing';
+
+import type {Slide} from '../../models/slide.model';
+import {BannerService} from '../../services/banner.service';
+import {CarouselComponent} from './carousel';
 
 function slide(id: string, title: string): Slide {
   return {
@@ -15,17 +16,13 @@ function slide(id: string, title: string): Slide {
     contentAlign: 'left',
     kicker: null,
     title,
-    textParts: [{ text: 'Text' }],
+    textParts: [{text: 'Text'}],
     buttonText: 'Go',
     buttonLink: null,
     credit: null,
   };
 }
 
-/**
- * Carousel behaviour is tested in the library (`projects/carousel`).
- * Here we only check what this consumer adds: error state and data wiring.
- */
 describe('CarouselComponent (banner consumer)', () => {
   let fixture: ComponentFixture<CarouselComponent>;
   let element: HTMLElement;
@@ -42,7 +39,7 @@ describe('CarouselComponent (banner consumer)', () => {
       providers: [
         {
           provide: BannerService,
-          useValue: { slides, error, isLoading: signal(false), isSample: signal(false), reload },
+          useValue: {slides, error, isLoading: signal(false), isSample: signal(false), reload},
         },
       ],
     });
@@ -60,21 +57,18 @@ describe('CarouselComponent (banner consumer)', () => {
     slides.set([slide('a', 'Alpha'), slide('b', 'Beta')]);
     fixture.detectChanges();
 
-    expect(element.querySelectorAll('app-slide')).toHaveLength(4); // 2 + 2 loop clones
-    expect(
-      [...element.querySelectorAll('.ui-carousel__dot')].map((dot) =>
-        dot.getAttribute('aria-label'),
-      ),
-    ).toEqual(['Slide 1: Alpha', 'Slide 2: Beta']);
+    expect(element.querySelectorAll('app-slide')).toHaveLength(4);
+    expect([...element.querySelectorAll('.ui-carousel__dot')].map((dot) => dot.getAttribute('aria-label'))).toEqual([
+      'Slide 1: Alpha',
+      'Slide 2: Beta',
+    ]);
   });
 
   it('prioritises only the first real slide', () => {
     slides.set([slide('a', 'Alpha'), slide('b', 'Beta')]);
     fixture.detectChanges();
 
-    const priorities = [...element.querySelectorAll('.slide__bg')].map((image) =>
-      image.getAttribute('fetchpriority'),
-    );
+    const priorities = [...element.querySelectorAll('.slide__bg')].map((image) => image.getAttribute('fetchpriority'));
     expect(priorities).toEqual(['low', 'high', 'low', 'low']);
   });
 

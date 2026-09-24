@@ -1,12 +1,10 @@
-import { provideHttpClient } from '@angular/common/http';
-import type { HttpTestingController } from '@angular/common/http/testing';
-import {
-  HttpTestingController as Controller,
-  provideHttpClientTesting,
-} from '@angular/common/http/testing';
-import { TestBed } from '@angular/core/testing';
-import { APOD_RETRY_BASE_MS, APOD_SNAPSHOT_URL, ApodService } from './apod.service';
-import { makeSnapshot } from './apod.testing';
+import {provideHttpClient} from '@angular/common/http';
+import type {HttpTestingController} from '@angular/common/http/testing';
+import {HttpTestingController as Controller, provideHttpClientTesting} from '@angular/common/http/testing';
+import {TestBed} from '@angular/core/testing';
+
+import {APOD_RETRY_BASE_MS, APOD_SNAPSHOT_URL, ApodService} from './apod.service';
+import {makeSnapshot} from './apod.testing';
 
 describe('ApodService', () => {
   let service: ApodService;
@@ -47,7 +45,7 @@ describe('ApodService', () => {
 
   it('flags sample data', async () => {
     await flushEffects();
-    http.expectOne(APOD_SNAPSHOT_URL).flush(makeSnapshot(3, { isSample: true }));
+    http.expectOne(APOD_SNAPSHOT_URL).flush(makeSnapshot(3, {isSample: true}));
     await flushEffects();
 
     expect(service.isSample()).toBe(true);
@@ -89,7 +87,7 @@ describe('ApodService', () => {
 
   it('does not retry invalid data', async () => {
     await flushEffects();
-    http.expectOne(APOD_SNAPSHOT_URL).flush({ entries: [] });
+    http.expectOne(APOD_SNAPSHOT_URL).flush({entries: []});
     await flushEffects();
 
     expect(service.error()?.message).toContain('no valid entries');

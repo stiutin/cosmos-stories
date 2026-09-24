@@ -1,8 +1,8 @@
-import { Component, computed, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { UiCarousel, UiCarouselSlide } from '@cosmos-stories/carousel';
-import type { SwipeAxis } from '@cosmos-stories/carousel/core';
-import { DEFAULT_SWIPE_OPTIONS } from '@cosmos-stories/carousel/core';
+import {Component, computed, signal} from '@angular/core';
+import {RouterLink} from '@angular/router';
+import {UiCarousel, UiCarouselSlide} from '@cosmos-stories/carousel';
+import type {SwipeAxis} from '@cosmos-stories/carousel/core';
+import {DEFAULT_SWIPE_OPTIONS} from '@cosmos-stories/carousel/core';
 
 interface DemoSlide {
   readonly id: number;
@@ -20,10 +20,6 @@ export const EASINGS = {
 } as const;
 export type EasingName = keyof typeof EASINGS;
 
-/**
- * Interactive documentation for `@cosmos-stories/carousel`: every input can be changed
- * live, the engine state is shown as it changes, and the matching template is generated.
- */
 @Component({
   selector: 'app-playground',
   imports: [UiCarousel, UiCarouselSlide, RouterLink],
@@ -33,23 +29,23 @@ export type EasingName = keyof typeof EASINGS;
 export class Playground {
   protected readonly easingNames = Object.keys(EASINGS) as EasingName[];
 
-  readonly slideCount = signal(5);
-  readonly loop = signal(true);
-  readonly autoplay = signal(true);
-  readonly intervalSeconds = signal(4);
-  readonly orientation = signal<SwipeAxis>('horizontal');
-  readonly controls = signal(true);
-  readonly transitionMs = signal(380);
-  readonly easing = signal<EasingName>('ease-out (default)');
-  readonly distanceRatio = signal(DEFAULT_SWIPE_OPTIONS.distanceRatio);
-  readonly flickVelocity = signal(DEFAULT_SWIPE_OPTIONS.flickVelocity);
+  public readonly slideCount = signal(5);
+  public readonly loop = signal(true);
+  public readonly autoplay = signal(true);
+  public readonly intervalSeconds = signal(4);
+  public readonly orientation = signal<SwipeAxis>('horizontal');
+  public readonly controls = signal(true);
+  public readonly transitionMs = signal(380);
+  public readonly easing = signal<EasingName>('ease-out (default)');
+  public readonly distanceRatio = signal(DEFAULT_SWIPE_OPTIONS.distanceRatio);
+  public readonly flickVelocity = signal(DEFAULT_SWIPE_OPTIONS.flickVelocity);
 
   protected readonly slides = computed<DemoSlide[]>(() =>
-    Array.from({ length: this.slideCount() }, (_, i) => ({
+    Array.from({length: this.slideCount()}, (_, i) => ({
       id: i,
       name: NAMES[i] ?? `Planet ${i + 1}`,
       hue: Math.round((360 / this.slideCount()) * i + 220) % 360,
-    })),
+    }))
   );
 
   protected readonly swipeOptions = computed(() => ({
@@ -63,13 +59,11 @@ export class Playground {
 
   protected readonly slideLabel = (slide: DemoSlide): string => slide.name;
 
-  /** The template a consumer would write for the current settings (defaults omitted). */
-  readonly code = computed(() => {
+  public readonly code = computed(() => {
     const attrs = ['[items]="planets"', 'label="Planets"'];
     if (!this.loop()) attrs.push('[loop]="false"');
     if (!this.autoplay()) attrs.push('[autoplay]="false"');
-    if (this.intervalSeconds() * 1000 !== 10_000)
-      attrs.push(`[interval]="${this.intervalSeconds() * 1000}"`);
+    if (this.intervalSeconds() * 1000 !== 10_000) attrs.push(`[interval]="${this.intervalSeconds() * 1000}"`);
     if (this.orientation() !== 'horizontal') attrs.push(`orientation="${this.orientation()}"`);
     if (!this.controls()) attrs.push('[controls]="false"');
     if (this.transitionMs() !== 380) attrs.push(`[transitionMs]="${this.transitionMs()}"`);
@@ -125,7 +119,6 @@ export class Playground {
     this.flickVelocity.set(DEFAULT_SWIPE_OPTIONS.flickVelocity);
   }
 
-  // Template helpers for native inputs (no Forms module needed).
   protected checked(event: Event): boolean {
     return event.target instanceof HTMLInputElement && event.target.checked;
   }

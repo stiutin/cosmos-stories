@@ -1,7 +1,8 @@
-import { TestBed } from '@angular/core/testing';
-import type { StoryGroup } from '../data/apod/apod.groups';
-import { makeEntry } from '../data/apod/apod.testing';
-import { SEEN_STORAGE_KEY, SeenStoriesService } from './seen-stories.service';
+import {TestBed} from '@angular/core/testing';
+
+import type {StoryGroup} from '../data/apod/apod.groups';
+import {makeEntry} from '../data/apod/apod.testing';
+import {SEEN_STORAGE_KEY, SeenStoriesService} from './seen-stories.service';
 
 const group: StoryGroup = {
   id: 'latest',

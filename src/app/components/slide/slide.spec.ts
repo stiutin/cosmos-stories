@@ -1,7 +1,8 @@
-import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
-import type { Slide } from '../../models/slide.model';
-import { SlideComponent } from './slide';
+import {TestBed} from '@angular/core/testing';
+import {provideRouter} from '@angular/router';
+
+import type {Slide} from '../../models/slide.model';
+import {SlideComponent} from './slide';
 
 const baseSlide: Slide = {
   id: 'test',
@@ -11,7 +12,7 @@ const baseSlide: Slide = {
   theme: 'nebula',
   contentAlign: 'center',
   title: 'Test title',
-  textParts: [{ text: 'Up to ' }, { text: '35% off', accent: true }, { text: ': daily, weekly!' }],
+  textParts: [{text: 'Up to '}, {text: '35% off', accent: true}, {text: ': daily, weekly!'}],
   buttonText: 'Go',
   buttonLink: null,
   kicker: null,
@@ -46,16 +47,14 @@ describe('SlideComponent', () => {
   });
 
   it('applies the theme and alignment', () => {
-    const slide = slideElement(render({ ...baseSlide, contentAlign: 'right', theme: 'orbit' }));
+    const slide = slideElement(render({...baseSlide, contentAlign: 'right', theme: 'orbit'}));
 
     expect(slide.dataset['theme']).toBe('orbit');
     expect(slide.classList).toContain('slide--right');
   });
 
   it('opens external links in a new tab, and says so', () => {
-    const link = render({ ...baseSlide, buttonLink: 'https://example.com' }).querySelector(
-      'a.slide__button',
-    );
+    const link = render({...baseSlide, buttonLink: 'https://example.com'}).querySelector('a.slide__button');
     expect(link?.getAttribute('href')).toBe('https://example.com');
     expect(link?.getAttribute('target')).toBe('_blank');
     expect(link?.getAttribute('rel')).toContain('noopener');
@@ -63,15 +62,13 @@ describe('SlideComponent', () => {
   });
 
   it('keeps plain links in the same tab', () => {
-    const link = render({ ...baseSlide, buttonLink: '#roadmap' }).querySelector('a.slide__button');
+    const link = render({...baseSlide, buttonLink: '#roadmap'}).querySelector('a.slide__button');
     expect(link?.hasAttribute('target')).toBe(false);
   });
 
   it('turns /-links into in-app routes', () => {
-    TestBed.configureTestingModule({ providers: [provideRouter([])] });
-    const link = render({ ...baseSlide, buttonLink: '/stories/latest/2026-09-20' }).querySelector(
-      'a.slide__button',
-    );
+    TestBed.configureTestingModule({providers: [provideRouter([])]});
+    const link = render({...baseSlide, buttonLink: '/stories/latest/2026-09-20'}).querySelector('a.slide__button');
     expect(link?.getAttribute('href')).toBe('/stories/latest/2026-09-20');
     expect(link?.hasAttribute('target')).toBe(false);
   });
@@ -98,9 +95,7 @@ describe('SlideComponent', () => {
   it('reserves image space and prioritises the first slide', () => {
     const images = [...render(baseSlide, true).querySelectorAll('img')];
 
-    expect(
-      images.every((image) => image.getAttribute('width') && image.getAttribute('height')),
-    ).toBe(true);
+    expect(images.every((image) => image.getAttribute('width') && image.getAttribute('height'))).toBe(true);
     expect(images.every((image) => image.getAttribute('fetchpriority') === 'high')).toBe(true);
   });
 });

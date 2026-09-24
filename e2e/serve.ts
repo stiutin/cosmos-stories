@@ -1,13 +1,8 @@
-/**
- * Serves the production build under /cosmos-stories/ like GitHub Pages does:
- * extensionless `.html` lookup, and 404.html (a copy of index.html) for unknown paths,
- * so deep links reach the router.
- */
-import { createReadStream, existsSync, readFileSync } from 'node:fs';
-import { stat } from 'node:fs/promises';
-import { createServer } from 'node:http';
-import { createGzip } from 'node:zlib';
-import { extname, join, normalize } from 'node:path';
+import {createReadStream, existsSync, readFileSync} from 'node:fs';
+import {stat} from 'node:fs/promises';
+import {createServer} from 'node:http';
+import {extname, join, normalize} from 'node:path';
+import {createGzip} from 'node:zlib';
 
 const ROOT = join(import.meta.dirname, '..', 'dist', 'cosmos-stories', 'browser');
 const BASE = '/cosmos-stories/';
@@ -26,24 +21,25 @@ const TYPES: Record<string, string> = {
   '.woff2': 'font/woff2',
 };
 
-/** Fails fast with instructions instead of serving a missing or wrong build. */
 function assertPreparedBuild(): void {
   const problems: string[] = [];
   const index = join(ROOT, 'index.html');
-  if (!existsSync(index)) problems.push('there is no production build');
-  else if (!readFileSync(index, 'utf8').includes(`<base href="${BASE}">`)) {
-    problems.push(
-      `the build's base href isn't ${BASE} (was it built with plain \`npm run build\`?)`,
-    );
+
+  if (!existsSync(index)) {
+    problems.push('there is no production build');
+  } else if (!readFileSync(index, 'utf8').includes(`<base href="${BASE}">`)) {
+    problems.push(`the build's base href isn't ${BASE} (was it built with plain \`npm run build\`?)`);
   }
+
   if (!existsSync(join(ROOT, '404.html')) || !existsSync(join(ROOT, 'data', 'apod.json'))) {
     problems.push('the build was not prepared for end-to-end tests');
   }
+
   if (problems.length === 0) return;
 
   console.error(
     `✖ Can't serve ${ROOT}: ${problems.join('; ')}.\n` +
-      '  Run `npm run e2e` (builds, then tests) or `npm run e2e:build` before `npm run e2e:run`.',
+      '  Run `npm run e2e` (builds, then tests) or `npm run e2e:build` before `npm run e2e:run`.'
   );
   process.exit(1);
 }
@@ -53,19 +49,21 @@ assertPreparedBuild();
 createServer((request, response) => {
   void (async () => {
     const url = new URL(request.url ?? '/', 'http://localhost');
-    // Outside the project path (e.g. /robots.txt at the origin root) there is nothing,
-    // just as on a GitHub Pages project site.
+
     if (!url.pathname.startsWith(BASE)) {
-      response.writeHead(404, { 'content-type': 'text/plain' }).end('Not found');
+      response.writeHead(404, {'content-type': 'text/plain'}).end('Not found');
       return;
     }
+
     const relative = normalize(decodeURIComponent(url.pathname.slice(BASE.length)) || 'index.html');
-    // Like GitHub Pages: `/a/b` is served from `a/b` or `a/b.html`, anything else from 404.html.
     let file = join(ROOT, '404.html');
     let status = 404;
+
     for (const candidate of [join(ROOT, relative), join(ROOT, `${relative}.html`)]) {
       if (!candidate.startsWith(ROOT)) continue;
+
       const info = await stat(candidate).catch(() => null);
+
       if (info?.isFile()) {
         file = candidate;
         status = 200;
@@ -73,16 +71,19 @@ createServer((request, response) => {
       }
     }
     const type = TYPES[extname(file)] ?? 'application/octet-stream';
-    // Compress text like GitHub Pages does, so Lighthouse measures realistic transfer sizes.
     const compressible = /text|javascript|json|svg|manifest/.test(type);
     const gzip = compressible && /\bgzip\b/.test(String(request.headers['accept-encoding']));
     response.writeHead(status, {
       'content-type': type,
-      ...(gzip ? { 'content-encoding': 'gzip', vary: 'accept-encoding' } : {}),
+      ...(gzip ? {'content-encoding': 'gzip', vary: 'accept-encoding'} : {}),
     });
     const stream = createReadStream(file);
-    if (gzip) stream.pipe(createGzip()).pipe(response);
-    else stream.pipe(response);
+
+    if (gzip) {
+      stream.pipe(createGzip()).pipe(response);
+    } else {
+      stream.pipe(response);
+    }
   })();
 }).listen(PORT, () => {
   console.log(`Serving ${ROOT} at http://localhost:${PORT}${BASE}`);

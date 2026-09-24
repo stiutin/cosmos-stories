@@ -1,4 +1,4 @@
-import { AutoplayClock } from './autoplay-clock';
+import {AutoplayClock} from './autoplay-clock';
 
 describe('AutoplayClock', () => {
   it('completes a cycle after the duration and reports progress', () => {

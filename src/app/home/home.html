@@ -3,9 +3,7 @@
     <img class="app__logo" src="favicon.svg" alt="" width="28" height="28" />
     <h1 class="app__title">Cosmos Stories</h1>
     @if (apod.isSample()) {
-      <span class="app__badge app__badge--sample" title="Run npm run data:fetch for real data">
-        Sample data
-      </span>
+    <span class="app__badge app__badge--sample" title="Run npm run data:fetch for real data"> Sample data </span>
     }
     <nav class="app__nav" aria-label="Project">
       <a routerLink="/playground">Playground</a>
@@ -16,24 +14,18 @@
   </header>
 
   @if (showContent()) {
-    <app-story-rings
-      class="app__rings"
-      [groups]="apod.groups()"
-      [transitionsEnabled]="!playerOpen()"
-    />
+  <app-story-rings class="app__rings" [groups]="apod.groups()" [transitionsEnabled]="!playerOpen()" />
 
-    <h2 class="app__section-title">Today in space</h2>
-    <div class="app__stage">
-      <app-carousel [active]="!playerOpen()" />
-    </div>
+  <h2 class="app__section-title">Today in space</h2>
+  <div class="app__stage">
+    <app-carousel [active]="!playerOpen()" />
+  </div>
   }
 
   <footer class="app__footer">
     Pictures and texts:
     <a href="https://apod.nasa.gov/apod/" target="_blank" rel="noopener noreferrer"
-      >NASA Astronomy Picture of the Day<span class="visually-hidden">
-        (opens in a new tab)</span
-      ></a
+      >NASA Astronomy Picture of the Day<span class="visually-hidden"> (opens in a new tab)</span></a
     >. Cosmos Stories is not affiliated with or endorsed by NASA.
   </footer>
 </main>

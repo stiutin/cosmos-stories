@@ -1,9 +1,16 @@
+# Build output and tool caches
 dist
-.angular
 coverage
-package-lock.json
-public/slides
-test-results
-playwright-report
-lighthouse-report
+out-tsc
+.angular
 .lighthouseci
+lighthouse-report
+playwright-report
+test-results
+
+# Generated or vendored
+package-lock.json
+*.min.js
+
+# Project
+public/slides

@@ -20,14 +20,12 @@
 }
 
 .ring {
-  // Contains the visually hidden story count; otherwise it would be positioned
-  // against the page and overflow it on phones.
-  position: relative;
   align-items: center;
   color: var(--color-white);
   display: flex;
   flex-direction: column;
   gap: 6px;
+  position: relative;
   text-decoration: none;
   width: 68px;
 

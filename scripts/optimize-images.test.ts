@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, readdir, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { after, before, test } from 'node:test';
+import {mkdtemp, readdir, rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {after, before, test} from 'node:test';
+
 import sharp from 'sharp';
-import type { ApodEntry } from '../src/app/data/apod/apod.model.ts';
-import { optimizeImages, WIDTHS } from './optimize-images.ts';
+
+import type {ApodEntry} from '../src/app/data/apod/apod.model.ts';
+import {optimizeImages, WIDTHS} from './optimize-images.ts';
 
 function entry(date: string, url: string | null, kind: 'image' | 'video' = 'image'): ApodEntry {
   return {
@@ -14,8 +16,8 @@ function entry(date: string, url: string | null, kind: 'image' | 'video' = 'imag
     explanation: 'x',
     media:
       kind === 'image'
-        ? { kind, url: url ?? '', hdUrl: null }
-        : { kind, embedUrl: 'https://www.youtube.com/embed/x', thumbnailUrl: url },
+        ? {kind, url: url ?? '', hdUrl: null}
+        : {kind, embedUrl: 'https://www.youtube.com/embed/x', thumbnailUrl: url},
     copyright: null,
     pageUrl: 'https://apod.nasa.gov/apod/astropix.html',
     cover: null,
@@ -29,7 +31,7 @@ let small: Uint8Array;
 before(async () => {
   dir = await mkdtemp(join(tmpdir(), 'apod-img-'));
   const make = (width: number, height: number) =>
-    sharp({ create: { width, height, channels: 3, background: '#224488' } })
+    sharp({create: {width, height, channels: 3, background: '#224488'}})
       .jpeg()
       .toBuffer();
   jpeg = new Uint8Array(await make(2000, 1200));
@@ -37,7 +39,7 @@ before(async () => {
 });
 
 after(async () => {
-  await rm(dir, { recursive: true, force: true });
+  await rm(dir, {recursive: true, force: true});
 });
 
 void test('writes AVIF and WebP at every width and records them', async () => {
@@ -52,7 +54,7 @@ void test('writes AVIF and WebP at every width and records them', async () => {
   assert.equal(report.optimized, 1);
   assert.deepEqual(
     cover.variants.map((v) => v.width),
-    [...WIDTHS],
+    [...WIDTHS]
   );
   assert.equal(cover.width, 2000);
   assert.equal(cover.height, 1200);
@@ -71,14 +73,14 @@ void test('never upscales a small original', async () => {
   });
   assert.deepEqual(
     report.entries[0]?.cover?.variants.map((v) => v.width),
-    [160, 480, 600],
+    [160, 480, 600]
   );
 });
 
 void test('uses video posters and skips entries without any picture', async () => {
   const report = await optimizeImages(
     [entry('2026-09-18', 'https://x/poster.jpg', 'video'), entry('2026-09-17', null, 'video')],
-    { outDir: dir, publicPath: 'data/img', fetchImage: () => Promise.resolve(jpeg) },
+    {outDir: dir, publicPath: 'data/img', fetchImage: () => Promise.resolve(jpeg)}
   );
   assert.ok(report.entries[0]?.cover);
   assert.equal(report.entries[1]?.cover, null);
@@ -92,10 +94,9 @@ void test('keeps going when a download or decode fails', async () => {
     {
       outDir: dir,
       publicPath: 'data/img',
-      fetchImage: (url) =>
-        Promise.resolve(url.includes('broken') ? new Uint8Array([1, 2, 3]) : jpeg),
+      fetchImage: (url) => Promise.resolve(url.includes('broken') ? new Uint8Array([1, 2, 3]) : jpeg),
       log: (message) => messages.push(message),
-    },
+    }
   );
   assert.equal(report.failed, 1);
   assert.equal(report.entries[0]?.cover, null);

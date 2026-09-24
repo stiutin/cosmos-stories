@@ -1,6 +1,5 @@
-import type { ApodEntry } from './apod.model';
+import type {ApodEntry} from './apod.model';
 
-/** A story group, e.g. "Latest" or "Galaxies". Entries are newest first. */
 export interface StoryGroup {
   readonly id: string;
   readonly title: string;
@@ -13,10 +12,6 @@ interface Topic {
   readonly keywords: RegExp;
 }
 
-/**
- * Topics are matched against the title first, then the explanation, in this order.
- * Each entry joins the first topic that matches, so the groups don't repeat each other.
- */
 const TOPICS: readonly Topic[] = [
   {
     id: 'solar-system',
@@ -56,39 +51,29 @@ function topicOf(entry: ApodEntry): Topic | null {
   );
 }
 
-/**
- * Builds story groups: "Latest" (the newest entries) followed by topic groups,
- * ordered by their newest entry. Unmatched entries go to "More". Empty groups are omitted.
- */
 export function groupStories(entries: readonly ApodEntry[]): StoryGroup[] {
   const sorted = [...entries].sort((a, b) => b.date.localeCompare(a.date));
   if (sorted.length === 0) return [];
 
-  const buckets = new Map<string, { title: string; entries: ApodEntry[] }>();
+  const buckets = new Map<string, {title: string; entries: ApodEntry[]}>();
   for (const entry of sorted) {
     const topic = topicOf(entry);
     const id = topic?.id ?? 'more';
     let bucket = buckets.get(id);
     if (!bucket) {
-      bucket = { title: topic?.title ?? 'More', entries: [] };
+      bucket = {title: topic?.title ?? 'More', entries: []};
       buckets.set(id, bucket);
     }
     bucket.entries.push(entry);
   }
 
   const topicGroups = [...buckets.entries()]
-    .map(([id, bucket]) => ({ id, title: bucket.title, entries: bucket.entries }))
-    // "More" always goes last; other groups by their newest entry.
-    .sort((a, b) =>
-      a.id === 'more' ? 1 : b.id === 'more' ? -1 : newest(b).localeCompare(newest(a)),
-    );
+    .map(([id, bucket]) => ({id, title: bucket.title, entries: bucket.entries}))
+    .sort((a, b) => (a.id === 'more' ? 1 : b.id === 'more' ? -1 : newest(b).localeCompare(newest(a))));
 
-  return [
-    { id: 'latest', title: 'Latest', entries: sorted.slice(0, LATEST_GROUP_SIZE) },
-    ...topicGroups,
-  ];
+  return [{id: 'latest', title: 'Latest', entries: sorted.slice(0, LATEST_GROUP_SIZE)}, ...topicGroups];
 }
 
-function newest(group: { entries: readonly ApodEntry[] }): string {
+function newest(group: {entries: readonly ApodEntry[]}): string {
   return group.entries[0]?.date ?? '';
 }

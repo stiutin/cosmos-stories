@@ -1,10 +1,5 @@
-import type { ApodApiItem } from './apod.parse';
+import type {ApodApiItem} from './apod.parse';
 
-/**
- * API-shaped test data. Texts are written for the tests; the structure and the
- * quirks (stray whitespace, `http:` URLs, multi-line credits, videos without
- * thumbnails, the `other` media type) mirror real APOD responses.
- */
 export const RAW_ITEMS: readonly ApodApiItem[] = [
   {
     date: '2026-09-18',

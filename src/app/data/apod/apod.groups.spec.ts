@@ -1,12 +1,12 @@
-import type { ApodEntry } from './apod.model';
-import { groupStories, LATEST_GROUP_SIZE } from './apod.groups';
+import {groupStories, LATEST_GROUP_SIZE} from './apod.groups';
+import type {ApodEntry} from './apod.model';
 
 function entry(date: string, title: string, explanation = 'Nothing special.'): ApodEntry {
   return {
     date,
     title,
     explanation,
-    media: { kind: 'image', url: `https://example.com/${date}.jpg`, hdUrl: null },
+    media: {kind: 'image', url: `https://example.com/${date}.jpg`, hdUrl: null},
     copyright: null,
     pageUrl: `https://apod.nasa.gov/apod/ap${date}.html`,
     cover: null,
@@ -41,15 +41,7 @@ describe('groupStories', () => {
   });
 
   it('orders topics by their newest entry and puts "More" last', () => {
-    expect(ids).toEqual([
-      'latest',
-      'solar-system',
-      'stars',
-      'earth-sky',
-      'galaxies',
-      'nebulae',
-      'more',
-    ]);
+    expect(ids).toEqual(['latest', 'solar-system', 'stars', 'earth-sky', 'galaxies', 'nebulae', 'more']);
   });
 
   it('puts each entry in exactly one topic group', () => {

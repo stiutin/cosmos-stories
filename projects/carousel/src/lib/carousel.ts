@@ -1,3 +1,4 @@
+import {NgTemplateOutlet} from '@angular/common';
 import {
   booleanAttribute,
   Component,
@@ -14,34 +15,15 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
-import type { CarouselState, SwipeAxis, SwipeOptions } from '@cosmos-stories/carousel/core';
-import { CarouselEngine, DEFAULT_SWIPE_OPTIONS, withClones } from '@cosmos-stories/carousel/core';
-import { UiCarouselSlide } from './carousel-slide.directive';
-import { UiSwipe } from './swipe.directive';
+import type {CarouselState, SwipeAxis, SwipeOptions} from '@cosmos-stories/carousel/core';
+import {CarouselEngine, DEFAULT_SWIPE_OPTIONS, withClones} from '@cosmos-stories/carousel/core';
 
-/** How often the public `progress` signal follows the engine (the bar itself is per frame). */
+import {UiCarouselSlide} from './carousel-slide.directive';
+import {UiSwipe} from './swipe.directive';
+
 const PROGRESS_SIGNAL_INTERVAL_MS = 250;
-
-/** If `transitionend` never arrives (hidden tab, interrupted transition), settle anyway. */
 const SETTLE_FALLBACK_EXTRA_MS = 100;
 
-/**
- * Accessible carousel with a seamless infinite loop, pointer and keyboard
- * navigation, and a pausable autoplay (WAI-ARIA carousel pattern).
- *
- * All behaviour lives in the framework-agnostic `CarouselEngine`; this component
- * only renders its state and translates DOM events into engine commands.
- *
- * ```html
- * <ui-carousel [items]="slides" label="Highlights" [interval]="8000">
- *   <ng-template [uiCarouselSlide]="slides" let-slide>{{ slide.title }}</ng-template>
- * </ui-carousel>
- * ```
- *
- * Theming: `--ui-carousel-control-color`, `--ui-carousel-control-muted`,
- * `--ui-carousel-control-bg`, `--ui-carousel-focus-color`.
- */
 @Component({
   selector: 'ui-carousel',
   exportAs: 'uiCarousel',
@@ -52,33 +34,20 @@ const SETTLE_FALLBACK_EXTRA_MS = 100;
 export class UiCarousel<T> {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
 
-  // ─── Inputs & outputs ───────────────────────────────────────────────────
-
-  readonly items = input.required<readonly T[]>();
-  /** Accessible name of the carousel region. */
-  readonly label = input('Carousel');
-  /** Accessible name of an item, used by the indicators. */
-  readonly itemLabel = input<(item: T, index: number) => string>(
-    (_item, index) => `Slide ${index + 1}`,
-  );
-  readonly loop = input(true, { transform: booleanAttribute });
-  /** Whether autoplay starts playing. Ignored (off) when the user prefers reduced motion. */
-  readonly autoplay = input(true, { transform: booleanAttribute });
-  readonly interval = input(10_000, { transform: numberAttribute });
-  readonly orientation = input<SwipeAxis>('horizontal');
-  /** Built-in pause button and indicators. Turn off to build custom controls via `exportAs`. */
-  readonly controls = input(true, { transform: booleanAttribute });
-  readonly transitionMs = input(380, { transform: numberAttribute });
-  readonly easing = input('cubic-bezier(0.25, 0.46, 0.45, 0.94)');
-  readonly swipeOptions = input<Partial<Omit<SwipeOptions, 'axis'>>>({});
-
-  /** Emits the real index whenever the current slide changes. */
-  readonly indexChange = output<number>();
+  public readonly items = input.required<readonly T[]>();
+  public readonly label = input('Carousel');
+  public readonly itemLabel = input<(item: T, index: number) => string>((_item, index) => `Slide ${index + 1}`);
+  public readonly loop = input(true, {transform: booleanAttribute});
+  public readonly autoplay = input(true, {transform: booleanAttribute});
+  public readonly interval = input(10_000, {transform: numberAttribute});
+  public readonly orientation = input<SwipeAxis>('horizontal');
+  public readonly controls = input(true, {transform: booleanAttribute});
+  public readonly transitionMs = input(380, {transform: numberAttribute});
+  public readonly easing = input('cubic-bezier(0.25, 0.46, 0.45, 0.94)');
+  public readonly swipeOptions = input<Partial<Omit<SwipeOptions, 'axis'>>>({});
+  public readonly indexChange = output<number>();
 
   protected readonly slideTemplate = contentChild.required<UiCarouselSlide<T>>(UiCarouselSlide);
-
-  // ─── Engine ─────────────────────────────────────────────────────────────
-
   protected readonly prefersReducedMotion = matchesMedia('(prefers-reduced-motion: reduce)');
 
   private readonly engine = new CarouselEngine({
@@ -86,18 +55,11 @@ export class UiCarousel<T> {
     animated: !this.prefersReducedMotion,
   });
 
-  /** Engine state as a signal. Read-only for consumers building custom controls. */
-  readonly state = signal<CarouselState>(this.engine.getState());
-
-  readonly index = computed(() => this.state().index);
-  readonly count = computed(() => this.state().count);
-  readonly playing = computed(() => this.state().playing);
-  /**
-   * Autoplay progress of the current slide (0..1). Updated a few times per second:
-   * the built-in progress bar is painted straight from the frame loop instead,
-   * so autoplay doesn't cost a change-detection pass on every frame.
-   */
-  readonly progress = signal(0);
+  public readonly state = signal<CarouselState>(this.engine.getState());
+  public readonly index = computed(() => this.state().index);
+  public readonly count = computed(() => this.state().count);
+  public readonly playing = computed(() => this.state().playing);
+  public readonly progress = signal(0);
   private readonly progressFill = viewChild<ElementRef<HTMLElement>>('progressFill');
 
   protected readonly rendered = computed(() => withClones(this.items(), this.loop()));
@@ -109,15 +71,15 @@ export class UiCarousel<T> {
   }));
 
   protected readonly trackTransform = computed(() => {
-    const { position, dragOffset } = this.state();
+    const {position, dragOffset} = this.state();
     const offset = `calc(${-position * 100}% + ${dragOffset}px)`;
-    return this.orientation() === 'horizontal'
-      ? `translate3d(${offset}, 0, 0)`
-      : `translate3d(0, ${offset}, 0)`;
+
+    return this.orientation() === 'horizontal' ? `translate3d(${offset}, 0, 0)` : `translate3d(0, ${offset}, 0)`;
   });
 
   protected readonly trackTransition = computed(() => {
-    const { animate, phase } = this.state();
+    const {animate, phase} = this.state();
+
     return animate && phase !== 'dragging' && !this.prefersReducedMotion
       ? `transform ${this.transitionMs()}ms ${this.easing()}`
       : 'none';
@@ -129,14 +91,13 @@ export class UiCarousel<T> {
   constructor() {
     this.engine.subscribe((state) => {
       const previous = this.state();
-      // `tick()` reports progress on every frame. Progress alone doesn't need a render.
       if (onlyProgressChanged(previous, state)) return;
       this.state.set(state);
       this.onStateChange(previous, state);
     });
 
     effect(() => {
-      const options = { loop: this.loop(), interval: this.interval() };
+      const options = {loop: this.loop(), interval: this.interval()};
       untracked(() => {
         this.engine.setOptions(options);
       });
@@ -172,30 +133,25 @@ export class UiCarousel<T> {
     });
   }
 
-  // ─── Public API ─────────────────────────────────────────────────────────
-
-  next(): void {
+  public next(): void {
     this.engine.next();
   }
 
-  prev(): void {
+  public prev(): void {
     this.engine.prev();
   }
 
-  goTo(index: number): void {
+  public goTo(index: number): void {
     this.engine.goTo(index);
   }
 
-  toggleAutoplay(): void {
+  public toggleAutoplay(): void {
     this.engine.toggle();
   }
 
-  /** Whether autoplay is frozen for a given reason (hover, focus, drag, hidden, user). */
-  isPausedBy(reason: 'user' | 'hover' | 'focus' | 'drag' | 'hidden'): boolean {
+  public isPausedBy(reason: 'user' | 'hover' | 'focus' | 'drag' | 'hidden'): boolean {
     return this.engine.isPausedBy(reason);
   }
-
-  // ─── Rendering glue ─────────────────────────────────────────────────────
 
   private onStateChange(previous: CarouselState, state: CarouselState): void {
     if (state.index !== previous.index) this.indexChange.emit(state.index);
@@ -228,9 +184,9 @@ export class UiCarousel<T> {
     let lastSignalUpdate = 0;
     const frame = (now: number): void => {
       this.engine.tick(now);
-      const { progress } = this.engine.getState();
-      // Compositor-only style write: no change detection involved.
+      const {progress} = this.engine.getState();
       this.progressFill()?.nativeElement.style.setProperty('transform', `scaleX(${progress})`);
+
       if (now - lastSignalUpdate >= PROGRESS_SIGNAL_INTERVAL_MS || progress === 0) {
         lastSignalUpdate = now;
         this.progress.set(progress);
@@ -239,8 +195,6 @@ export class UiCarousel<T> {
     };
     this.frameId = requestAnimationFrame(frame);
   }
-
-  // ─── Input ──────────────────────────────────────────────────────────────
 
   protected onSwipeStart(): void {
     this.engine.dragStart();
@@ -276,7 +230,7 @@ export class UiCarousel<T> {
     event.preventDefault();
     const focusWasInSlide = this.activeSlideElement()?.contains(document.activeElement) ?? false;
     action();
-    // The slide that had focus is now inert: hand focus to the new slide so it isn't lost.
+
     if (focusWasInSlide) {
       afterPaint(() => {
         this.activeSlideElement()?.focus();
@@ -298,6 +252,7 @@ export class UiCarousel<T> {
 
   protected onFocusOut(event: FocusEvent): void {
     const next = event.relatedTarget;
+
     if (!(next instanceof Node) || !this.host.contains(next)) {
       this.engine.setPaused('focus', false);
     }
@@ -312,13 +267,12 @@ function matchesMedia(query: string): boolean {
   return typeof window.matchMedia === 'function' && window.matchMedia(query).matches;
 }
 
-/** Runs after the browser has painted the current state (two animation frames). */
 function afterPaint(callback: () => void): void {
   requestAnimationFrame(() => requestAnimationFrame(callback));
 }
 
 function onlyProgressChanged(previous: CarouselState, next: CarouselState): boolean {
   return (Object.keys(next) as (keyof CarouselState)[]).every(
-    (key) => key === 'progress' || previous[key] === next[key],
+    (key) => key === 'progress' || previous[key] === next[key]
   );
 }

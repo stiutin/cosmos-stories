@@ -1,4 +1,4 @@
-import { DEFAULT_SWIPE_OPTIONS, SwipeTracker } from './swipe-tracker';
+import {DEFAULT_SWIPE_OPTIONS, SwipeTracker} from './swipe-tracker';
 
 const WIDTH = 400;
 
@@ -73,7 +73,6 @@ describe('SwipeTracker', () => {
   });
 
   it('does not count a flick back towards the start as a swipe that way', () => {
-    // Dragged far left, then flicked right a little: net movement still left and short.
     const tracker = drag([
       [200, 0, 0],
       [150, 0, 300],
@@ -83,7 +82,7 @@ describe('SwipeTracker', () => {
   });
 
   it('navigates along the vertical axis when configured', () => {
-    const tracker = new SwipeTracker({ ...DEFAULT_SWIPE_OPTIONS, axis: 'vertical' });
+    const tracker = new SwipeTracker({...DEFAULT_SWIPE_OPTIONS, axis: 'vertical'});
     tracker.start(100, 400, 0);
 
     expect(tracker.move(104, 300, 200)).toBe(-100);
@@ -92,7 +91,7 @@ describe('SwipeTracker', () => {
   });
 
   it('leaves horizontal movement alone in vertical mode', () => {
-    const tracker = new SwipeTracker({ ...DEFAULT_SWIPE_OPTIONS, axis: 'vertical' });
+    const tracker = new SwipeTracker({...DEFAULT_SWIPE_OPTIONS, axis: 'vertical'});
     tracker.start(100, 100, 0);
 
     expect(tracker.move(250, 104, 100)).toBe(0);

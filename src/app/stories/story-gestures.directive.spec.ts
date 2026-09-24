@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
-import type { ComponentFixture } from '@angular/core/testing';
-import { TestBed } from '@angular/core/testing';
-import { queryRequired } from '../../testing/dom';
-import { HOLD_DELAY_MS, StoryGesturesDirective } from './story-gestures.directive';
+import {Component} from '@angular/core';
+import type {ComponentFixture} from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing';
+
+import {queryRequired} from '../../testing/dom';
+import {HOLD_DELAY_MS, StoryGesturesDirective} from './story-gestures.directive';
 
 @Component({
   imports: [StoryGesturesDirective],
@@ -24,7 +25,7 @@ import { HOLD_DELAY_MS, StoryGesturesDirective } from './story-gestures.directiv
   `,
 })
 class Host {
-  readonly log: string[] = [];
+  public readonly log: string[] = [];
 }
 
 describe('StoryGesturesDirective', () => {
@@ -43,7 +44,7 @@ describe('StoryGesturesDirective', () => {
       clientX: x,
       clientY: y,
     });
-    Object.defineProperty(event, 'timeStamp', { value: time });
+    Object.defineProperty(event, 'timeStamp', {value: time});
     target.dispatchEvent(event);
   }
 
@@ -53,8 +54,8 @@ describe('StoryGesturesDirective', () => {
     fixture.detectChanges();
     stage = queryRequired(fixture.nativeElement as HTMLElement, '.stage');
     log = fixture.componentInstance.log;
-    stage.getBoundingClientRect = () => ({ left: 0, top: 0, width: 300, height: 600 }) as DOMRect;
-    Object.defineProperty(stage, 'clientWidth', { value: 300 });
+    stage.getBoundingClientRect = () => ({left: 0, top: 0, width: 300, height: 600}) as DOMRect;
+    Object.defineProperty(stage, 'clientWidth', {value: 300});
   });
 
   afterEach(() => {

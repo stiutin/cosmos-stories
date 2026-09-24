@@ -1,27 +1,11 @@
-import { DestroyRef, Directive, ElementRef, inject, output } from '@angular/core';
-import type { SwipeDirection } from '@cosmos-stories/carousel/core';
-import { SwipeTracker } from '@cosmos-stories/carousel/core';
+import {DestroyRef, Directive, ElementRef, inject, output} from '@angular/core';
+import type {SwipeDirection} from '@cosmos-stories/carousel/core';
+import {SwipeTracker} from '@cosmos-stories/carousel/core';
 
-/** Press this long without moving to pause (Instagram-style hold). */
 export const HOLD_DELAY_MS = 220;
-/** Swipe down at least this far (px), or flick down, to close the player. */
 export const DISMISS_DISTANCE = 120;
 const DISMISS_VELOCITY = 0.6;
 
-/**
- * All pointer input of the stories player, on one element:
- *
- * | Gesture                        | Output                                 |
- * | ------------------------------ | -------------------------------------- |
- * | tap on the left third / rest   | `tapPrev` / `tapNext`                  |
- * | press and hold                 | `holdChange(true)` … `holdChange(false)` |
- * | horizontal drag                | `dragStart`, `dragMove(px)`, `dragEnd(direction)` |
- * | drag down                      | `dismissMove(px)`, then `dismiss` or `dismissMove(0)` |
- *
- * Horizontal recognition reuses `SwipeTracker` from the carousel core. The host
- * gets `touch-action: none`, because the player handles both axes itself.
- * Gestures that start on a button or link are left alone.
- */
 @Directive({
   selector: '[appStoryGestures]',
   host: {
@@ -30,7 +14,6 @@ const DISMISS_VELOCITY = 0.6;
     '(pointermove)': 'onPointerMove($event)',
     '(pointerup)': 'onPointerUp($event)',
     '(pointercancel)': 'onPointerCancel($event)',
-    // A long press would otherwise open the image context menu on mobile.
     '(contextmenu)': '$event.preventDefault()',
     '(dragstart)': '$event.preventDefault()',
   },
@@ -38,14 +21,14 @@ const DISMISS_VELOCITY = 0.6;
 export class StoryGesturesDirective {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
 
-  readonly tapPrev = output();
-  readonly tapNext = output();
-  readonly holdChange = output<boolean>();
-  readonly dragStart = output();
-  readonly dragMove = output<number>();
-  readonly dragEnd = output<SwipeDirection>();
-  readonly dismissMove = output<number>();
-  readonly dismiss = output();
+  public readonly tapPrev = output();
+  public readonly tapNext = output();
+  public readonly holdChange = output<boolean>();
+  public readonly dragStart = output();
+  public readonly dragMove = output<number>();
+  public readonly dragEnd = output<SwipeDirection>();
+  public readonly dismissMove = output<number>();
+  public readonly dismiss = output();
 
   private tracker = new SwipeTracker();
   private pointerId: number | null = null;
@@ -65,6 +48,7 @@ export class StoryGesturesDirective {
 
   protected onPointerDown(event: PointerEvent): void {
     if (!event.isPrimary || (event.pointerType === 'mouse' && event.button !== 0)) return;
+
     if (event.target instanceof Element && event.target.closest('button, a, iframe')) return;
 
     this.reset();
@@ -112,9 +96,7 @@ export class StoryGesturesDirective {
     this.clearHoldTimer();
 
     if (this.dragging) {
-      this.dragEnd.emit(
-        this.tracker.end(event.clientX, event.clientY, event.timeStamp, this.host.clientWidth),
-      );
+      this.dragEnd.emit(this.tracker.end(event.clientX, event.clientY, event.timeStamp, this.host.clientWidth));
     } else if (this.dismissing) {
       const distance = event.clientY - this.startY;
       const velocity = distance / Math.max(1, event.timeStamp - this.startTime);
@@ -133,15 +115,20 @@ export class StoryGesturesDirective {
 
   protected onPointerCancel(event: PointerEvent): void {
     if (event.pointerId !== this.pointerId) return;
+
     this.clearHoldTimer();
+
     if (this.dragging) this.dragEnd.emit(0);
+
     if (this.dismissing) this.dismissMove.emit(0);
+
     this.releaseHold();
     this.reset();
   }
 
   private releaseHold(): void {
     if (!this.holding) return;
+
     this.holding = false;
     this.holdChange.emit(false);
   }
@@ -155,6 +142,7 @@ export class StoryGesturesDirective {
 
   private clearHoldTimer(): void {
     if (this.holdTimer !== null) clearTimeout(this.holdTimer);
+
     this.holdTimer = null;
   }
 

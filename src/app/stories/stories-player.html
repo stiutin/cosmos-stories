@@ -10,22 +10,13 @@
 
   <!-- Wide screens: neighbouring groups peek out beside the frame. -->
   @if (neighbours().prev; as prev) {
-    <button
-      class="player__neighbour player__neighbour--prev"
-      type="button"
-      (click)="goToGroup(groupIndex() - 1)"
-    >
-      <span class="visually-hidden">Previous group: </span>{{ prev.title }}
-    </button>
-  }
-  @if (neighbours().next; as next) {
-    <button
-      class="player__neighbour player__neighbour--next"
-      type="button"
-      (click)="goToGroup(groupIndex() + 1)"
-    >
-      <span class="visually-hidden">Next group: </span>{{ next.title }}
-    </button>
+  <button class="player__neighbour player__neighbour--prev" type="button" (click)="goToGroup(groupIndex() - 1)">
+    <span class="visually-hidden">Previous group: </span>{{ prev.title }}
+  </button>
+  } @if (neighbours().next; as next) {
+  <button class="player__neighbour player__neighbour--next" type="button" (click)="goToGroup(groupIndex() + 1)">
+    <span class="visually-hidden">Next group: </span>{{ next.title }}
+  </button>
   }
 
   <div class="player__frame">
@@ -43,138 +34,97 @@
       (dismiss)="close()"
     >
       @if (faces().length === 0) {
-        <div class="player__loading" role="status">
-          {{ isLoading() ? 'Loading stories…' : 'No stories to show.' }}
-        </div>
-      }
+      <div class="player__loading" role="status">{{ isLoading() ? 'Loading stories…' : 'No stories to show.' }}</div>
+      } @for (face of faces(); track face.group) {
+      <section
+        class="face"
+        [class.face--active]="face.active"
+        [style.transform]="face.transform"
+        [style.transition]="faceTransition()"
+        [attr.inert]="face.active ? null : ''"
+        [attr.aria-hidden]="face.active ? null : 'true'"
+        (transitionend)="onFaceTransitionEnd($event, face.active)"
+      >
+        <app-story-media
+          [style.view-transition-name]="face.active ? coverTransition : null"
+          [entry]="face.entry"
+          [active]="face.active"
+          [priority]="face.active"
+          (ready)="onReady($event)"
+          (videoOpenChange)="onVideoOpen($event)"
+        />
 
-      @for (face of faces(); track face.group) {
-        <section
-          class="face"
-          [class.face--active]="face.active"
-          [style.transform]="face.transform"
-          [style.transition]="faceTransition()"
-          [attr.inert]="face.active ? null : ''"
-          [attr.aria-hidden]="face.active ? null : 'true'"
-          (transitionend)="onFaceTransitionEnd($event, face.active)"
-        >
-          <app-story-media
-            [style.view-transition-name]="face.active ? coverTransition : null"
-            [entry]="face.entry"
-            [active]="face.active"
-            [priority]="face.active"
-            (ready)="onReady($event)"
-            (videoOpenChange)="onVideoOpen($event)"
-          />
-
-          <div class="face__top">
-            <app-story-progress [count]="face.count" [index]="face.story" [progress]="0" />
-            <div class="face__header">
-              <div class="face__meta">
-                <span class="face__group">{{ face.title }}</span>
-                <span class="face__date">{{ formatDate(face.entry.date) }}</span>
-              </div>
-              @if (face.active) {
-                <div class="face__actions">
-                  <button
-                    class="icon-button"
-                    type="button"
-                    [attr.aria-label]="paused() ? 'Play stories' : 'Pause stories'"
-                    (click)="togglePause()"
-                  >
-                    @if (paused()) {
-                      <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path
-                          d="M8 5.5v13a1 1 0 0 0 1.5.86l11-6.5a1 1 0 0 0 0-1.72l-11-6.5A1 1 0 0 0 8 5.5Z"
-                        />
-                      </svg>
-                    } @else {
-                      <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <rect x="6" y="4" width="4" height="16" rx="1" />
-                        <rect x="14" y="4" width="4" height="16" rx="1" />
-                      </svg>
-                    }
-                  </button>
-                  <button
-                    class="icon-button"
-                    type="button"
-                    aria-label="Share this story"
-                    (click)="share()"
-                  >
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M12 3l4 4h-3v8h-2V7H8l4-4Zm-7 9h2v7h10v-7h2v9H5v-9Z" />
-                    </svg>
-                  </button>
-                  <button
-                    #closeButton
-                    class="icon-button"
-                    type="button"
-                    aria-label="Close stories"
-                    (click)="close()"
-                  >
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path
-                        d="M6.4 5 5 6.4 10.6 12 5 17.6 6.4 19l5.6-5.6 5.6 5.6 1.4-1.4-5.6-5.6L19 6.4 17.6 5 12 10.6 6.4 5Z"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              }
+        <div class="face__top">
+          <app-story-progress [count]="face.count" [index]="face.story" [progress]="0" />
+          <div class="face__header">
+            <div class="face__meta">
+              <span class="face__group">{{ face.title }}</span>
+              <span class="face__date">{{ formatDate(face.entry.date) }}</span>
             </div>
-          </div>
-
-          <div class="face__caption" [class.face__caption--open]="face.active && captionOpen()">
-            <h2 class="face__title">{{ face.entry.title }}</h2>
-            <p class="face__text">{{ face.entry.explanation }}</p>
             @if (face.active) {
-              <div class="face__caption-actions">
-                <button
-                  class="text-button"
-                  type="button"
-                  [attr.aria-expanded]="captionOpen()"
-                  (click)="toggleCaption()"
-                >
-                  {{ captionOpen() ? 'Less' : 'More' }}
-                </button>
-                <a
-                  class="text-button"
-                  [href]="face.entry.pageUrl"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Read on APOD<span class="visually-hidden"> (opens in a new tab)</span>
-                </a>
-              </div>
+            <div class="face__actions">
+              <button
+                class="icon-button"
+                type="button"
+                [attr.aria-label]="paused() ? 'Play stories' : 'Pause stories'"
+                (click)="togglePause()"
+              >
+                @if (paused()) {
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M8 5.5v13a1 1 0 0 0 1.5.86l11-6.5a1 1 0 0 0 0-1.72l-11-6.5A1 1 0 0 0 8 5.5Z" />
+                </svg>
+                } @else {
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="6" y="4" width="4" height="16" rx="1" />
+                  <rect x="14" y="4" width="4" height="16" rx="1" />
+                </svg>
+                }
+              </button>
+              <button class="icon-button" type="button" aria-label="Share this story" (click)="share()">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 3l4 4h-3v8h-2V7H8l4-4Zm-7 9h2v7h10v-7h2v9H5v-9Z" />
+                </svg>
+              </button>
+              <button #closeButton class="icon-button" type="button" aria-label="Close stories" (click)="close()">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M6.4 5 5 6.4 10.6 12 5 17.6 6.4 19l5.6-5.6 5.6 5.6 1.4-1.4-5.6-5.6L19 6.4 17.6 5 12 10.6 6.4 5Z"
+                  />
+                </svg>
+              </button>
+            </div>
             }
-            <p class="face__credit">
-              {{
-                face.entry.copyright
-                  ? 'Image © ' + face.entry.copyright
-                  : 'Public domain · NASA APOD'
-              }}
-            </p>
           </div>
-        </section>
+        </div>
+
+        <div class="face__caption" [class.face__caption--open]="face.active && captionOpen()">
+          <h2 class="face__title">{{ face.entry.title }}</h2>
+          <p class="face__text">{{ face.entry.explanation }}</p>
+          @if (face.active) {
+          <div class="face__caption-actions">
+            <button class="text-button" type="button" [attr.aria-expanded]="captionOpen()" (click)="toggleCaption()">
+              {{ captionOpen() ? 'Less' : 'More' }}
+            </button>
+            <a class="text-button" [href]="face.entry.pageUrl" target="_blank" rel="noopener noreferrer">
+              Read on APOD<span class="visually-hidden"> (opens in a new tab)</span>
+            </a>
+          </div>
+          }
+          <p class="face__credit">
+            {{ face.entry.copyright ? 'Image © ' + face.entry.copyright : 'Public domain · NASA APOD' }}
+          </p>
+        </div>
+      </section>
       }
     </div>
 
     <!-- Keyboard and screen-reader friendly equivalents of the tap zones. -->
-    <button
-      class="player__step player__step--prev"
-      type="button"
-      aria-label="Previous story"
-      (click)="prev(true)"
-    >
+    <button class="player__step player__step--prev" type="button" aria-label="Previous story" (click)="prev(true)">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M15.4 5 8.4 12l7 7 1.4-1.4L11.2 12l5.6-5.6L15.4 5Z" />
       </svg>
     </button>
-    <button
-      class="player__step player__step--next"
-      type="button"
-      aria-label="Next story"
-      (click)="next(true)"
-    >
+    <button class="player__step player__step--next" type="button" aria-label="Next story" (click)="next(true)">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="m8.6 5-1.4 1.4 5.6 5.6-5.6 5.6L8.6 19l7-7-7-7Z" />
       </svg>
@@ -182,7 +132,7 @@
   </div>
 
   @if (toast(); as message) {
-    <div class="player__toast" role="status">{{ message }}</div>
+  <div class="player__toast" role="status">{{ message }}</div>
   }
   <p class="visually-hidden" aria-live="polite">{{ announcement() }}</p>
 </div>
