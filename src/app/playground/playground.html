@@ -1,0 +1,213 @@
+<main class="playground" tabindex="-1">
+  <header class="playground__header">
+    <a class="playground__back" routerLink="/">← Cosmos Stories</a>
+    <h1>Carousel playground</h1>
+    <p class="playground__intro">
+      Every option of <code>&#64;cosmos-stories/carousel</code>, live. The same engine drives the
+      banner and the stories cube.
+    </p>
+  </header>
+
+  <div class="playground__layout">
+    <form class="panel settings" aria-label="Carousel options" (submit)="$event.preventDefault()">
+      <h2>Options</h2>
+
+      <label class="field">
+        <span
+          >Slides <output>{{ slideCount() }}</output></span
+        >
+        <input
+          type="range"
+          min="1"
+          max="8"
+          [value]="slideCount()"
+          (input)="slideCount.set(numeric($event))"
+        />
+      </label>
+
+      <label class="field field--check">
+        <input type="checkbox" [checked]="loop()" (change)="loop.set(checked($event))" />
+        <span>Infinite loop <small>clones + invisible jump; off = edge resistance</small></span>
+      </label>
+
+      <label class="field field--check">
+        <input type="checkbox" [checked]="autoplay()" (change)="autoplay.set(checked($event))" />
+        <span>Autoplay</span>
+      </label>
+
+      <label class="field">
+        <span
+          >Interval <output>{{ intervalSeconds() }} s</output></span
+        >
+        <input
+          type="range"
+          min="2"
+          max="15"
+          [value]="intervalSeconds()"
+          (input)="intervalSeconds.set(numeric($event))"
+        />
+      </label>
+
+      <fieldset class="field">
+        <legend>Orientation</legend>
+        <div class="segmented">
+          @for (value of ['horizontal', 'vertical']; track value) {
+            <label>
+              <input
+                type="radio"
+                name="orientation"
+                [value]="value"
+                [checked]="orientation() === value"
+                (change)="setOrientation(text($event))"
+              />
+              <span>{{ value }}</span>
+            </label>
+          }
+        </div>
+      </fieldset>
+
+      <label class="field field--check">
+        <input type="checkbox" [checked]="controls()" (change)="controls.set(checked($event))" />
+        <span>Built-in controls <small>off = use the custom buttons below the preview</small></span>
+      </label>
+
+      <label class="field">
+        <span
+          >Transition <output>{{ transitionMs() }} ms</output></span
+        >
+        <input
+          type="range"
+          min="0"
+          max="1200"
+          step="20"
+          [value]="transitionMs()"
+          (input)="transitionMs.set(numeric($event))"
+        />
+      </label>
+
+      <label class="field">
+        <span>Easing</span>
+        <select (change)="setEasing(text($event))">
+          @for (name of easingNames; track name) {
+            <option [value]="name" [selected]="name === easing()">{{ name }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span
+          >Swipe distance <output>{{ distanceRatio() }}</output></span
+        >
+        <input
+          type="range"
+          min="0.1"
+          max="0.6"
+          step="0.05"
+          [value]="distanceRatio()"
+          (input)="distanceRatio.set(numeric($event))"
+        />
+      </label>
+
+      <label class="field">
+        <span
+          >Flick velocity <output>{{ flickVelocity() }} px/ms</output></span
+        >
+        <input
+          type="range"
+          min="0.1"
+          max="1.5"
+          step="0.1"
+          [value]="flickVelocity()"
+          (input)="flickVelocity.set(numeric($event))"
+        />
+      </label>
+
+      <button class="button button--ghost" type="button" (click)="reset()">Reset</button>
+    </form>
+
+    <section class="preview" aria-label="Preview">
+      <div class="preview__stage" [class.preview__stage--vertical]="orientation() === 'vertical'">
+        <ui-carousel
+          #carousel="uiCarousel"
+          label="Planets"
+          [items]="slides()"
+          [itemLabel]="slideLabel"
+          [loop]="loop()"
+          [autoplay]="autoplay()"
+          [interval]="intervalSeconds() * 1000"
+          [orientation]="orientation()"
+          [controls]="controls()"
+          [transitionMs]="transitionMs()"
+          [easing]="easingValue()"
+          [swipeOptions]="swipeOptions()"
+          (indexChange)="onIndexChange($event)"
+        >
+          <ng-template [uiCarouselSlide]="slides()" let-planet let-active="active">
+            <div class="card" [style.--hue]="planet.hue" [class.card--active]="active">
+              <span class="card__planet" aria-hidden="true"></span>
+              <span class="card__name">{{ planet.name }}</span>
+              <span class="card__index">{{ planet.id + 1 }} / {{ slides().length }}</span>
+            </div>
+          </ng-template>
+        </ui-carousel>
+      </div>
+
+      <div class="custom-controls" role="group" aria-label="Custom controls (exportAs)">
+        <button class="button" type="button" (click)="carousel.prev()">‹ Prev</button>
+        <button class="button" type="button" (click)="carousel.toggleAutoplay()">
+          {{ carousel.playing() ? 'Pause' : 'Play' }}
+        </button>
+        <button class="button" type="button" (click)="carousel.next()">Next ›</button>
+      </div>
+
+      <div class="panel state">
+        <h2>Engine state</h2>
+        <dl>
+          <div>
+            <dt>index</dt>
+            <dd data-testid="state-index">{{ carousel.index() }} / {{ carousel.count() }}</dd>
+          </div>
+          <div>
+            <dt>phase</dt>
+            <dd>{{ carousel.state().phase }}</dd>
+          </div>
+          <div>
+            <dt>position</dt>
+            <dd>{{ carousel.state().position }}</dd>
+          </div>
+          <div>
+            <dt>playing</dt>
+            <dd>{{ carousel.playing() }}</dd>
+          </div>
+          <div>
+            <dt>progress</dt>
+            <dd>
+              <meter min="0" max="1" [value]="carousel.progress()"></meter>
+            </dd>
+          </div>
+        </dl>
+        <h3>indexChange</h3>
+        <ol class="log" aria-live="off">
+          @for (entry of log(); track $index) {
+            <li>{{ entry }}</li>
+          } @empty {
+            <li class="log__empty">Swipe, press ← → or wait for autoplay</li>
+          }
+        </ol>
+      </div>
+    </section>
+
+    <section class="panel code" aria-label="Generated template">
+      <div class="code__header">
+        <h2>Template</h2>
+        <button class="button button--ghost" type="button" (click)="copyCode()">
+          {{ copied() ? 'Copied' : 'Copy' }}
+        </button>
+      </div>
+      <pre
+        tabindex="0"
+        aria-label="Generated template code"
+      ><code data-testid="generated-code">{{ code() }}</code></pre>
+    </section>
+  </div>
+</main>

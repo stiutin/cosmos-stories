@@ -1,0 +1,56 @@
+:host {
+  display: block;
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+ui-carousel {
+  --ui-carousel-control-color: var(--color-white);
+  --ui-carousel-control-muted: var(--color-white-35);
+  --ui-carousel-control-bg: var(--color-black-40);
+  --ui-carousel-focus-color: var(--color-white);
+}
+
+.carousel__error {
+  align-items: center;
+  background: rgba(8, 6, 24, 0.92);
+  border: 1px solid var(--color-white-35);
+  border-radius: 16px;
+  color: var(--color-white);
+  display: flex;
+  gap: 16px;
+  left: 50%;
+  padding: 10px 10px 10px 18px;
+  position: absolute;
+  top: 16px;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100% - 32px);
+  z-index: 30;
+
+  p {
+    font-size: 0.85rem;
+    opacity: 0.85;
+  }
+}
+
+.carousel__retry {
+  background: transparent;
+  border: 2px solid var(--color-white);
+  border-radius: 50px;
+  color: var(--color-white);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 10px 28px;
+
+  &:hover {
+    background: var(--color-white-10);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-white);
+    outline-offset: 3px;
+  }
+}

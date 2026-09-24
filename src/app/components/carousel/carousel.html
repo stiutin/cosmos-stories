@@ -1,0 +1,17 @@
+<ui-carousel
+  [items]="banner.slides()"
+  label="Today in space"
+  [itemLabel]="slideLabel"
+  [autoplay]="active()"
+>
+  <ng-template [uiCarouselSlide]="banner.slides()" let-slide let-index="index" let-clone="clone">
+    <app-slide [slide]="slide" [priority]="index === 0 && !clone" />
+  </ng-template>
+</ui-carousel>
+
+@if (banner.error()) {
+  <div class="carousel__error" role="alert">
+    <p>Couldn't load today's space pictures.</p>
+    <button class="carousel__retry" type="button" (click)="banner.reload()">Try again</button>
+  </div>
+}

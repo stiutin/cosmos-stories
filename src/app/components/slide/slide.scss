@@ -1,0 +1,242 @@
+/*
+  Each theme sets its own accent and fade colour through CSS custom properties,
+  so adding a theme is a matter of adding one block here.
+*/
+.slide[data-theme='nebula'] {
+  --slide-accent: var(--color-accent-nebula);
+  --slide-fade-color: var(--color-fade-nebula);
+}
+
+.slide[data-theme='galaxy'] {
+  --slide-accent: var(--color-accent-galaxy);
+  --slide-fade-color: var(--color-fade-galaxy);
+}
+
+.slide[data-theme='orbit'] {
+  --slide-accent: var(--color-accent-orbit);
+  --slide-fade-color: var(--color-fade-orbit);
+}
+
+.slide[data-theme='photo'] {
+  --slide-accent: var(--color-accent-photo);
+  --slide-fade-color: var(--color-fade-photo);
+}
+
+:host {
+  // The slide's own size drives its layout (see the container query below).
+  container-type: size;
+  display: block;
+  height: 100%;
+}
+
+.slide {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: flex-end;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+
+  &::after {
+    background: linear-gradient(to bottom, transparent 30%, var(--slide-fade-color) 100%);
+    content: '';
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+    z-index: 1;
+  }
+}
+
+.slide__bg {
+  height: 100%;
+  inset: 0;
+  object-fit: cover;
+  object-position: center top;
+  position: absolute;
+  width: 100%;
+}
+
+.slide__visual {
+  height: 75%;
+  inset: 0 0 auto;
+  pointer-events: none;
+  position: absolute;
+  z-index: 1;
+}
+
+.slide__img {
+  animation: float 5s ease-in-out infinite;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  width: 100%;
+}
+
+.slide__content {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px 24px 72px;
+  position: relative;
+  z-index: 2;
+}
+
+.slide__kicker {
+  color: var(--slide-accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.slide__credit {
+  color: var(--color-white-60);
+  font-size: 0.7rem;
+}
+
+// Photos fill the slide; the fade keeps the text readable on bright images.
+.slide--photo {
+  .slide__bg {
+    object-position: center;
+  }
+
+  &::after {
+    background: linear-gradient(
+      to bottom,
+      transparent 25%,
+      color-mix(in srgb, var(--slide-fade-color) 70%, transparent) 60%,
+      var(--slide-fade-color) 100%
+    );
+  }
+}
+
+.slide__title {
+  color: var(--color-white);
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  text-shadow: 0 2px 12px var(--color-black-40);
+}
+
+.slide__text {
+  color: var(--color-white-78);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.slide__accent {
+  color: var(--slide-accent);
+  font-weight: 700;
+}
+
+.slide__button {
+  -webkit-tap-highlight-color: transparent;
+  align-items: center;
+  background: transparent;
+  border: 2px solid var(--color-white);
+  border-radius: 50px;
+  color: var(--color-white);
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  justify-content: center;
+  letter-spacing: 0.03em;
+  margin-top: 4px;
+  padding: 12px 40px;
+  text-decoration: none;
+  transition: background 0.3s ease;
+  white-space: nowrap;
+
+  &:hover,
+  &:active {
+    background: var(--color-white-10);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--slide-accent);
+    outline-offset: 3px;
+  }
+
+  &.slide__button--disabled {
+    border-color: var(--color-white-35);
+    color: var(--color-white-60);
+    cursor: default;
+
+    &:hover,
+    &:active {
+      background: transparent;
+    }
+  }
+}
+
+.slide--center .slide__content {
+  align-items: center;
+  text-align: center;
+}
+
+.slide--right .slide__content {
+  align-items: flex-end;
+  text-align: right;
+}
+
+/*
+  Wide slides (desktop, landscape phones): artwork on the right, copy on the left.
+  Container queries react to the slide's own size, not the window, so the
+  component works wherever it is placed.
+*/
+@container (min-aspect-ratio: 1.15) {
+  .slide__visual {
+    height: 100%;
+    inset: 0 0 0 42%;
+    padding: 6% 4% 12%;
+  }
+
+  .slide::after {
+    background: linear-gradient(
+      to right,
+      var(--slide-fade-color) 0%,
+      color-mix(in srgb, var(--slide-fade-color) 60%, transparent) 40%,
+      transparent 70%
+    );
+  }
+
+  .slide .slide__content,
+  .slide.slide--center .slide__content,
+  .slide.slide--right .slide__content {
+    align-items: flex-start;
+    justify-content: center;
+    max-width: min(560px, 50%);
+    padding: 0 0 0 clamp(24px, 6cqw, 80px);
+    text-align: left;
+    height: 100%;
+  }
+
+  .slide__title {
+    font-size: clamp(1.8rem, 5cqh, 3.2rem);
+  }
+
+  .slide__text {
+    font-size: clamp(0.9rem, 2.4cqh, 1.15rem);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide__img {
+    animation: none;
+  }
+}

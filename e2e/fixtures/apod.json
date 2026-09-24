@@ -1,0 +1,84 @@
+{
+  "generatedAt": "2026-09-23T06:15:00.000Z",
+  "isSample": false,
+  "entries": [
+    {
+      "date": "2026-09-22",
+      "title": "Mars at Dawn",
+      "explanation": "An explanation written for the end-to-end tests. It has two sentences so the caption can expand.",
+      "media": {
+        "kind": "image",
+        "url": "slides/nebula-visual.svg",
+        "hdUrl": null
+      },
+      "copyright": null,
+      "pageUrl": "https://apod.nasa.gov/apod/astropix.html",
+      "cover": null
+    },
+    {
+      "date": "2026-09-21",
+      "title": "A Spiral Galaxy",
+      "explanation": "An explanation written for the end-to-end tests. It has two sentences so the caption can expand.",
+      "media": {
+        "kind": "image",
+        "url": "slides/galaxy-visual.svg",
+        "hdUrl": null
+      },
+      "copyright": null,
+      "pageUrl": "https://apod.nasa.gov/apod/astropix.html",
+      "cover": null
+    },
+    {
+      "date": "2026-09-20",
+      "title": "The Veil Nebula",
+      "explanation": "An explanation written for the end-to-end tests. It has two sentences so the caption can expand.",
+      "media": {
+        "kind": "image",
+        "url": "slides/orbit-visual.svg",
+        "hdUrl": null
+      },
+      "copyright": null,
+      "pageUrl": "https://apod.nasa.gov/apod/astropix.html",
+      "cover": null
+    },
+    {
+      "date": "2026-09-19",
+      "title": "Aurora Over the Fjord",
+      "explanation": "An explanation written for the end-to-end tests. It has two sentences so the caption can expand.",
+      "media": {
+        "kind": "image",
+        "url": "slides/nebula-bg.svg",
+        "hdUrl": null
+      },
+      "copyright": null,
+      "pageUrl": "https://apod.nasa.gov/apod/astropix.html",
+      "cover": null
+    },
+    {
+      "date": "2026-09-18",
+      "title": "Saturn and Its Rings",
+      "explanation": "An explanation written for the end-to-end tests. It has two sentences so the caption can expand.",
+      "media": {
+        "kind": "image",
+        "url": "slides/galaxy-bg.svg",
+        "hdUrl": null
+      },
+      "copyright": null,
+      "pageUrl": "https://apod.nasa.gov/apod/astropix.html",
+      "cover": null
+    },
+    {
+      "date": "2026-09-17",
+      "title": "A Galaxy Cluster",
+      "explanation": "An explanation written for the end-to-end tests. It has two sentences so the caption can expand.",
+      "media": {
+        "kind": "image",
+        "url": "slides/orbit-bg.svg",
+        "hdUrl": null
+      },
+      "copyright": null,
+      "pageUrl": "https://apod.nasa.gov/apod/astropix.html",
+      "cover": null
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "generatedAt": "2026-09-23T00:00:00.000Z",
+  "isSample": true,
+  "entries": [
+    {
+      "date": "2026-09-22",
+      "title": "Sample: A Ringed World",
+      "explanation": "Sample entry for local development. Real Astronomy Picture of the Day data is fetched by the nightly GitHub Actions build, or locally with `npm run data:fetch` and a NASA API key.",
+      "media": {
+        "kind": "image",
+        "url": "slides/nebula-visual.svg",
+        "hdUrl": null
+      },
+      "copyright": "Cosmos Stories sample artwork",
+      "pageUrl": "https://apod.nasa.gov/apod/astropix.html"
+    },
+    {
+      "date": "2026-09-21",
+      "title": "Sample: A Spiral Galaxy",
+      "explanation": "Sample entry for local development. The illustration is original artwork from this repository, standing in for a NASA image.",
+      "media": {
+        "kind": "image",
+        "url": "slides/galaxy-visual.svg",
+        "hdUrl": null
+      },
+      "copyright": "Cosmos Stories sample artwork",
+      "pageUrl": "https://apod.nasa.gov/apod/astropix.html"
+    },
+    {
+      "date": "2026-09-20",
+      "title": "Sample: A Moon in Orbit",
+      "explanation": "Sample entry for local development. Swap in real data with `npm run data:fetch` once NASA_API_KEY is set in a .env file.",
+      "media": {
+        "kind": "image",
+        "url": "slides/orbit-visual.svg",
+        "hdUrl": null
+      },
+      "copyright": "Cosmos Stories sample artwork",
+      "pageUrl": "https://apod.nasa.gov/apod/astropix.html"
+    },
+    {
+      "date": "2026-09-19",
+      "title": "Sample: Violet Starfield",
+      "explanation": "Sample entry for local development, showing a background star field.",
+      "media": {
+        "kind": "image",
+        "url": "slides/nebula-bg.svg",
+        "hdUrl": null
+      },
+      "copyright": "Cosmos Stories sample artwork",
+      "pageUrl": "https://apod.nasa.gov/apod/astropix.html"
+    },
+    {
+      "date": "2026-09-18",
+      "title": "Sample: Crimson Starfield",
+      "explanation": "Sample entry for local development, showing a background star field.",
+      "media": {
+        "kind": "image",
+        "url": "slides/galaxy-bg.svg",
+        "hdUrl": null
+      },
+      "copyright": "Cosmos Stories sample artwork",
+      "pageUrl": "https://apod.nasa.gov/apod/astropix.html"
+    },
+    {
+      "date": "2026-09-17",
+      "title": "Sample: Blue Starfield",
+      "explanation": "Sample entry for local development, showing a background star field.",
+      "media": {
+        "kind": "image",
+        "url": "slides/orbit-bg.svg",
+        "hdUrl": null
+      },
+      "copyright": "Cosmos Stories sample artwork",
+      "pageUrl": "https://apod.nasa.gov/apod/astropix.html"
+    }
+  ]
+}

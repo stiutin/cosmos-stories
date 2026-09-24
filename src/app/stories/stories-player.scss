@@ -1,0 +1,313 @@
+:host {
+  display: contents;
+}
+
+.player {
+  --dismiss: 0;
+  display: grid;
+  inset: 0;
+  place-items: center;
+  position: fixed;
+  z-index: 100;
+}
+
+.player__backdrop {
+  background: rgba(3, 3, 10, 0.94);
+  inset: 0;
+  opacity: calc(1 - var(--dismiss) / 600);
+  position: absolute;
+}
+
+// ─── Frame: full screen on phones, a 9:16 card on larger screens ───────────
+
+.player__frame {
+  height: 100svh;
+  position: relative;
+  transform: translateY(calc(var(--dismiss) * 1px)) scale(calc(1 - var(--dismiss) / 2000));
+  width: 100vw;
+}
+
+.player__stage {
+  height: 100%;
+  overflow: hidden;
+  perspective: 1200px;
+  position: relative;
+  user-select: none;
+  width: 100%;
+}
+
+.player__loading {
+  color: var(--color-white-60);
+  display: grid;
+  inset: 0;
+  place-items: center;
+  position: absolute;
+}
+
+// ─── Cube faces ────────────────────────────────────────────────────────────
+
+.face {
+  backface-visibility: hidden;
+  background: #000;
+  inset: 0;
+  overflow: hidden;
+  position: absolute;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.face__top {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), transparent);
+  left: 0;
+  padding: max(12px, env(safe-area-inset-top)) 12px 32px;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.face__header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.face__meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.face__group {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.face__date {
+  color: var(--color-white-78);
+  font-size: 0.75rem;
+}
+
+.face__actions {
+  display: flex;
+  gap: 4px;
+}
+
+.icon-button {
+  align-items: center;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: var(--color-white);
+  cursor: pointer;
+  display: inline-flex;
+  height: 40px;
+  justify-content: center;
+  width: 40px;
+
+  svg {
+    fill: currentColor;
+    height: 22px;
+    width: 22px;
+  }
+
+  &:hover {
+    background: var(--color-white-10);
+  }
+}
+
+.face__caption {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 40%, transparent);
+  bottom: 0;
+  left: 0;
+  max-height: 70%;
+  padding: 48px 16px max(16px, env(safe-area-inset-bottom));
+  position: absolute;
+  right: 0;
+}
+
+.face__title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+
+.face__text {
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: var(--color-white-78);
+  display: -webkit-box;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+.face__caption--open {
+  background: rgba(0, 0, 0, 0.88);
+  overflow-y: auto;
+  touch-action: pan-y;
+
+  .face__text {
+    -webkit-line-clamp: unset;
+    display: block;
+  }
+}
+
+.face__caption-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.text-button {
+  background: none;
+  border: none;
+  color: var(--color-white);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 4px 0;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.face__credit {
+  color: var(--color-white-60);
+  font-size: 0.7rem;
+  margin-top: 8px;
+}
+
+// Holding a story hides the interface so the picture can be seen in full.
+.player--holding {
+  .face__top,
+  .face__caption {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+}
+
+.icon-button:focus-visible,
+.text-button:focus-visible,
+.player__step:focus-visible,
+.player__neighbour:focus-visible {
+  outline: 2px solid var(--color-white);
+  outline-offset: 2px;
+}
+
+// ─── Step buttons and neighbours ───────────────────────────────────────────
+
+// On phones the tap zones do the job; the buttons stay available to keyboards
+// and screen readers and appear when focused.
+.player__step {
+  align-items: center;
+  background: var(--color-white-10);
+  border: 1px solid var(--color-white-35);
+  border-radius: 50%;
+  color: var(--color-white);
+  cursor: pointer;
+  display: flex;
+  height: 40px;
+  justify-content: center;
+  opacity: 0;
+  position: absolute;
+  top: 50%;
+  width: 40px;
+
+  &:focus-visible {
+    opacity: 1;
+  }
+
+  svg {
+    fill: currentColor;
+    height: 22px;
+    width: 22px;
+  }
+}
+
+.player__step--prev {
+  left: 8px;
+}
+
+.player__step--next {
+  right: 8px;
+}
+
+.player__neighbour {
+  display: none;
+}
+
+.player__toast {
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 50px;
+  bottom: 96px;
+  left: 50%;
+  padding: 8px 16px;
+  position: fixed;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+@media (min-width: 768px) and (min-height: 560px) {
+  .player__frame {
+    aspect-ratio: 9 / 16;
+    height: min(92svh, 860px);
+    width: auto;
+  }
+
+  .player__stage {
+    border-radius: 16px;
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6);
+  }
+
+  .player__step {
+    opacity: 1;
+  }
+
+  .player__step--prev {
+    left: -56px;
+  }
+
+  .player__step--next {
+    right: -56px;
+  }
+
+  .player__neighbour {
+    background: var(--color-white-06);
+    border: 1px solid var(--color-white-10);
+    border-radius: 12px;
+    color: var(--color-white-78);
+    cursor: pointer;
+    display: block;
+    font: inherit;
+    font-weight: 700;
+    padding: 16px 20px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+
+    &:hover {
+      background: var(--color-white-10);
+      color: var(--color-white);
+    }
+  }
+
+  .player__neighbour--prev {
+    right: calc(50% + min(92svh, 860px) * 9 / 32 + 80px);
+  }
+
+  .player__neighbour--next {
+    left: calc(50% + min(92svh, 860px) * 9 / 32 + 80px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .player--holding .face__top,
+  .player--holding .face__caption {
+    transition: none;
+  }
+}

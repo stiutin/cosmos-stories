@@ -1,0 +1,45 @@
+@if (rings().length > 0) {
+  <nav class="rings" aria-label="Story groups">
+    <ul class="rings__list">
+      @for (ring of rings(); track ring.id) {
+        <li>
+          <a
+            class="ring"
+            [class.ring--seen]="ring.seen"
+            [routerLink]="['/stories', ring.id, ring.startDate]"
+            (click)="transition.groupId.set(ring.id)"
+          >
+            <span
+              class="ring__avatar"
+              [style.view-transition-name]="
+                transitionsEnabled() && transition.groupId() === ring.id ? coverTransition : null
+              "
+            >
+              @if (ring.cover; as cover) {
+                <img [src]="cover" alt="" loading="lazy" referrerpolicy="no-referrer" />
+              }
+            </span>
+            <!-- Keep the spans adjacent: whitespace between them would end up in the accessible name. -->
+            <span class="ring__title">{{ ring.title }}</span
+            ><span class="visually-hidden"
+              >, {{ ring.count }} {{ ring.count === 1 ? 'story' : 'stories'
+              }}{{ ring.seen ? ', all seen' : '' }}</span
+            >
+          </a>
+        </li>
+      }
+    </ul>
+  </nav>
+} @else {
+  <!-- Same size as the real row, so the page doesn't shift when the data arrives. -->
+  <div class="rings rings--placeholder" aria-hidden="true">
+    <ul class="rings__list">
+      @for (i of placeholders; track i) {
+        <li class="ring">
+          <span class="ring__avatar"></span>
+          <span class="ring__title">&nbsp;</span>
+        </li>
+      }
+    </ul>
+  </div>
+}

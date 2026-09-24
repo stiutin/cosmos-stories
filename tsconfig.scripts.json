@@ -1,0 +1,22 @@
+/*
+  Node scripts, run with native TypeScript type stripping (Node 22.18+).
+  Bundler resolution lets them share modules with the app, whose type-only
+  imports are extensionless; Node erases those imports, so they never resolve at runtime.
+*/
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "types": ["node"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true
+  },
+  "include": ["scripts/**/*.ts"]
+}

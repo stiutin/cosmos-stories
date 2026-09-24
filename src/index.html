@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Cosmos Stories</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0c0924" />
+    <meta
+      name="description"
+      content="Cosmos Stories: daily snapshots of the universe from NASA's Astronomy Picture of the Day, built with Angular."
+    />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Cosmos Stories" />
+    <meta
+      property="og:description"
+      content="NASA's Astronomy Picture of the Day as Instagram-style stories. Built with Angular 22."
+    />
+    <meta property="og:url" content="https://stiutin.github.io/cosmos-stories/" />
+    <meta
+      property="og:image"
+      content="https://stiutin.github.io/cosmos-stories/social-preview.png"
+    />
+    <meta property="og:image:width" content="1280" />
+    <meta property="og:image:height" content="640" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <!-- Start the two requests the first screen needs together with the HTML. -->
+    <link rel="preload" href="slides/nebula-bg.svg" as="image" fetchpriority="high" />
+    <link rel="preload" href="data/apod.json" as="fetch" crossorigin="anonymous" />
+    <style>
+      /* App shell: painted before JavaScript runs, replaced by Angular on bootstrap. */
+      .shell {
+        align-items: center;
+        background: radial-gradient(circle at 50% 30%, #1a0f4e, #0c0924 65%);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        font-family: system-ui, sans-serif;
+        gap: 12px;
+        height: 100svh;
+        justify-content: center;
+      }
+      .shell p {
+        font-size: 1.1rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <app-root>
+      <div class="shell">
+        <svg width="48" height="48" viewBox="0 0 64 64" aria-hidden="true">
+          <circle
+            cx="32"
+            cy="32"
+            r="22"
+            fill="none"
+            stroke="#ffe566"
+            stroke-width="3"
+            stroke-dasharray="30 6"
+          />
+          <circle cx="32" cy="32" r="11" fill="#b44cff" />
+          <circle cx="50" cy="20" r="4" fill="#fff" />
+        </svg>
+        <p>Cosmos Stories</p>
+      </div>
+    </app-root>
+    <noscript>Cosmos Stories needs JavaScript to show its stories.</noscript>
+  </body>
+</html>

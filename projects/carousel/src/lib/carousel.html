@@ -1,0 +1,92 @@
+<section
+  uiSwipe
+  class="ui-carousel"
+  aria-roledescription="carousel"
+  tabindex="0"
+  [attr.aria-label]="label()"
+  [class.ui-carousel--vertical]="orientation() === 'vertical'"
+  [swipeOptions]="resolvedSwipeOptions()"
+  (swipeStart)="onSwipeStart()"
+  (swipeMove)="onSwipeMove($event)"
+  (swipeEnd)="onSwipeEnd($event)"
+  (keydown)="onKeydown($event)"
+  (pointerenter)="onPointerEnter($event)"
+  (pointerleave)="onPointerLeave($event)"
+  (focusin)="onFocusIn()"
+  (focusout)="onFocusOut($event)"
+>
+  @if (controls() && count() > 1) {
+    <!-- Rotation control comes first in the DOM, as the WAI-ARIA carousel pattern recommends. -->
+    <div class="ui-carousel__controls">
+      <button
+        class="ui-carousel__autoplay"
+        type="button"
+        [attr.aria-label]="playing() ? 'Pause slideshow' : 'Play slideshow'"
+        (click)="toggleAutoplay()"
+      >
+        @if (playing()) {
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <rect x="3" y="2" width="3.5" height="12" rx="1" />
+            <rect x="9.5" y="2" width="3.5" height="12" rx="1" />
+          </svg>
+        } @else {
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M4 2.5v11a1 1 0 0 0 1.5.86l9-5.5a1 1 0 0 0 0-1.72l-9-5.5A1 1 0 0 0 4 2.5Z" />
+          </svg>
+        }
+      </button>
+
+      <div class="ui-carousel__indicators" role="group" aria-label="Choose slide">
+        @for (item of items(); track $index; let i = $index) {
+          <button
+            class="ui-carousel__dot"
+            type="button"
+            [class.ui-carousel__dot--active]="i === index()"
+            [attr.aria-label]="itemLabel()(item, i)"
+            [attr.aria-current]="i === index() ? 'true' : null"
+            (click)="goTo(i)"
+          >
+            <span class="ui-carousel__dot-pill">
+              @if (i === index() && playing()) {
+                <span #progressFill class="ui-carousel__dot-fill"></span>
+              }
+            </span>
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Announce slide changes only when the user causes them, not on every autoplay tick. -->
+  <div class="ui-carousel__viewport" [attr.aria-live]="playing() ? 'off' : 'polite'">
+    <div
+      class="ui-carousel__track"
+      [style.transform]="trackTransform()"
+      [style.transition]="trackTransition()"
+      (transitionend)="onTransitionEnd($event)"
+    >
+      @for (entry of rendered(); track entry.key; let position = $index) {
+        <div
+          class="ui-carousel__slide"
+          role="group"
+          aria-roledescription="slide"
+          tabindex="-1"
+          [class.ui-carousel__slide--active]="position === state().position"
+          [attr.aria-label]="entry.index + 1 + ' of ' + count()"
+          [attr.inert]="position === state().position ? null : ''"
+          [attr.aria-hidden]="entry.isClone ? 'true' : null"
+        >
+          <ng-container
+            [ngTemplateOutlet]="slideTemplate().template"
+            [ngTemplateOutletContext]="{
+              $implicit: entry.item,
+              index: entry.index,
+              active: position === state().position,
+              clone: entry.isClone,
+            }"
+          />
+        </div>
+      }
+    </div>
+  </div>
+</section>

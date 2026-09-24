@@ -1,0 +1,111 @@
+:host {
+  display: block;
+}
+
+.rings {
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.rings__list {
+  display: flex;
+  gap: 14px;
+  list-style: none;
+  padding: 10px 16px 8px;
+  width: max-content;
+}
+
+.ring {
+  // Contains the visually hidden story count; otherwise it would be positioned
+  // against the page and overflow it on phones.
+  position: relative;
+  align-items: center;
+  color: var(--color-white);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-decoration: none;
+  width: 68px;
+
+  &:focus-visible {
+    outline: none;
+
+    .ring__avatar {
+      outline: 2px solid var(--color-white);
+      outline-offset: 3px;
+    }
+  }
+}
+
+.ring__avatar {
+  background:
+    linear-gradient(var(--color-bg), var(--color-bg)) padding-box,
+    conic-gradient(
+        from 200deg,
+        var(--color-accent-nebula),
+        var(--color-accent-galaxy),
+        var(--color-accent-orbit),
+        var(--color-accent-nebula)
+      )
+      border-box;
+  border: 2.5px solid transparent;
+  border-radius: 50%;
+  display: block;
+  height: 64px;
+  padding: 2px;
+  width: 64px;
+
+  img {
+    border-radius: 50%;
+    display: block;
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+  }
+}
+
+.ring--seen {
+  .ring__avatar {
+    background:
+      linear-gradient(var(--color-bg), var(--color-bg)) padding-box,
+      linear-gradient(var(--color-white-35), var(--color-white-35)) border-box;
+  }
+
+  .ring__title {
+    color: var(--color-white-60);
+  }
+}
+
+.ring__title {
+  font-size: 0.72rem;
+  max-width: 100%;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rings--placeholder {
+  overflow: hidden;
+
+  .ring__avatar {
+    animation: pulse 1.6s ease-in-out infinite;
+    background: var(--color-white-07);
+  }
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rings--placeholder .ring__avatar {
+    animation: none;
+  }
+}

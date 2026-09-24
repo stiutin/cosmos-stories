@@ -1,0 +1,88 @@
+{
+  "name": "cosmos-stories",
+  "version": "1.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Stories-style viewer for NASA's Astronomy Picture of the Day, built on a custom Angular carousel engine.",
+  "homepage": "https://stiutin.github.io/cosmos-stories/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stiutin/cosmos-stories.git"
+  },
+  "license": "MIT",
+  "author": "stiutin",
+  "engines": {
+    "node": "^22.22.3 || ^24.15.0 || >=26.0.0"
+  },
+  "scripts": {
+    "ng": "ng",
+    "prestart": "node scripts/ensure-data.ts",
+    "start": "ng serve",
+    "prebuild": "node scripts/ensure-data.ts",
+    "build": "ng build",
+    "build:lib": "ng build carousel",
+    "watch": "ng build --watch --configuration development",
+    "data:fetch": "node --env-file-if-exists=.env scripts/fetch-apod.ts",
+    "data:sample": "node -e \"require('fs').cpSync('data/apod.sample.json','public/data/apod.json')\"",
+    "test": "ng test cosmos-stories --watch=false && ng test carousel --watch=false",
+    "test:watch": "ng test cosmos-stories",
+    "test:lib": "ng test carousel --watch=false",
+    "test:coverage": "ng test carousel --watch=false --coverage",
+    "test:scripts": "node --test scripts/*.test.ts",
+    "e2e:build": "ng build --base-href /cosmos-stories/ && node scripts/e2e-prepare.ts",
+    "e2e": "npm run e2e:build && playwright test",
+    "e2e:run": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "e2e:install": "playwright install chromium",
+    "typecheck:scripts": "tsc -p tsconfig.scripts.json && tsc -p tsconfig.e2e.json",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "check": "npm run format:check && npm run lint && npm run typecheck:scripts && npm run test && npm run test:scripts"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "overrides": [
+      {
+        "files": "*.html",
+        "options": {
+          "parser": "angular"
+        }
+      }
+    ]
+  },
+  "dependencies": {
+    "@angular/common": "^22.2.0",
+    "@angular/compiler": "^22.2.0",
+    "@angular/core": "^22.2.0",
+    "@angular/forms": "^22.2.0",
+    "@angular/platform-browser": "^22.2.0",
+    "@angular/router": "^22.2.0",
+    "@angular/service-worker": "^22.2.0",
+    "@fontsource-variable/roboto": "^5.3.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^22.1.8",
+    "@angular/cli": "^22.1.8",
+    "@angular/compiler-cli": "^22.2.0",
+    "@axe-core/playwright": "^4.13.0",
+    "@eslint/js": "^10.0.1",
+    "@lhci/cli": "^0.15.1",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^22.20.4",
+    "@vitest/coverage-v8": "^4.1.11",
+    "angular-eslint": "^22.5.0",
+    "eslint": "^10.11.0",
+    "jsdom": "^27.1.0",
+    "ng-packagr": "^22.2.1",
+    "prettier": "^3.9.9",
+    "sharp": "^0.35.4",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.70.1",
+    "vitest": "^4.0.8"
+  }
+}

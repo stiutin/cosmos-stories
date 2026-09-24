@@ -1,0 +1,50 @@
+{
+  "$schema": "./node_modules/@angular/service-worker/config/schema.json",
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "app-shell",
+      "installMode": "prefetch",
+      "resources": {
+        "files": ["/index.html", "/manifest.webmanifest", "/favicon.svg", "/*.css", "/*.js"]
+      }
+    },
+    {
+      "name": "static-assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": ["/slides/**", "/icons/**", "/media/**", "/**/*.(woff2|woff)"]
+      }
+    },
+    {
+      "name": "apod-images",
+      "installMode": "lazy",
+      "updateMode": "lazy",
+      "resources": {
+        "files": ["/data/img/**"]
+      }
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "apod-snapshot",
+      "urls": ["/data/apod.json"],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "timeout": "4s",
+        "maxSize": 1,
+        "maxAge": "7d"
+      }
+    },
+    {
+      "name": "external-images",
+      "urls": ["https://apod.nasa.gov/apod/image/**", "https://img.youtube.com/**"],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 80,
+        "maxAge": "30d"
+      }
+    }
+  ]
+}

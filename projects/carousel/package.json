@@ -1,0 +1,28 @@
+{
+  "name": "@cosmos-stories/carousel",
+  "version": "1.0.1",
+  "description": "Accessible, headless-core infinite carousel for Angular: seamless looping, pointer gestures, pausable autoplay.",
+  "keywords": [
+    "angular",
+    "carousel",
+    "slider",
+    "swipe",
+    "accessibility",
+    "signals"
+  ],
+  "license": "MIT",
+  "author": "stiutin",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stiutin/cosmos-stories.git",
+    "directory": "projects/carousel"
+  },
+  "peerDependencies": {
+    "@angular/common": "^22.0.0",
+    "@angular/core": "^22.0.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false
+}

@@ -1,0 +1,75 @@
+<div
+  class="slide"
+  [attr.data-theme]="slide().theme"
+  [class.slide--photo]="!slide().visualImage"
+  [class.slide--center]="slide().contentAlign === 'center'"
+  [class.slide--right]="slide().contentAlign === 'right'"
+>
+  <picture class="slide__picture">
+    @for (source of slide().bgSources; track source.type) {
+      <source [type]="source.type" [attr.srcset]="source.srcset" sizes="100vw" />
+    }
+    <!-- `loading` is bound before `src`, so the browser knows it may wait. -->
+    <img
+      class="slide__bg"
+      [attr.loading]="priority() ? 'eager' : 'lazy'"
+      [src]="slide().bgImage"
+      alt=""
+      width="414"
+      height="525"
+      decoding="async"
+      draggable="false"
+      referrerpolicy="no-referrer"
+      [attr.fetchpriority]="priority() ? 'high' : 'low'"
+    />
+  </picture>
+  @if (slide().visualImage; as visual) {
+    <div class="slide__visual">
+      <img
+        class="slide__img"
+        [attr.loading]="priority() ? 'eager' : 'lazy'"
+        [src]="visual"
+        alt=""
+        width="378"
+        height="257"
+        decoding="async"
+        draggable="false"
+        [attr.fetchpriority]="priority() ? 'high' : 'low'"
+      />
+    </div>
+  }
+  <div class="slide__content">
+    @if (slide().kicker; as kicker) {
+      <p class="slide__kicker">{{ kicker }}</p>
+    }
+    <h2 class="slide__title">{{ slide().title }}</h2>
+    <!-- Every part is an element, so template whitespace can't leak into the sentence. -->
+    <p class="slide__text">
+      @for (part of slide().textParts; track $index) {
+        <span [class.slide__accent]="part.accent">{{ part.text }}</span>
+      }
+    </p>
+    @if (slide().buttonLink; as link) {
+      @switch (linkKind()) {
+        @case ('external') {
+          <a class="slide__button" [href]="link" target="_blank" rel="noopener noreferrer">
+            {{ slide().buttonText }}<span class="visually-hidden"> (opens in a new tab)</span>
+          </a>
+        }
+        @case ('route') {
+          <a class="slide__button" [routerLink]="link">{{ slide().buttonText }}</a>
+        }
+        @default {
+          <a class="slide__button" [href]="link">{{ slide().buttonText }}</a>
+        }
+      }
+    } @else {
+      <button class="slide__button slide__button--disabled" type="button" aria-disabled="true">
+        {{ slide().buttonText }}
+      </button>
+    }
+    @if (slide().credit; as credit) {
+      <p class="slide__credit">{{ credit }}</p>
+    }
+  </div>
+</div>
