@@ -22,6 +22,8 @@ const HOUSE_TS_RULES = {
     'error',
     {accessibility: 'explicit', overrides: {constructors: 'no-public'}},
   ],
+  '@typescript-eslint/explicit-module-boundary-types': 'error',
+  '@typescript-eslint/no-explicit-any': 'error',
   '@typescript-eslint/no-unused-vars': 'off',
   'unused-imports/no-unused-vars': [
     'error',
