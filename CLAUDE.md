@@ -174,7 +174,7 @@ These are the non-obvious rules. Each one exists because breaking it caused, or 
 12. **Accessibility is a gate, not a nice-to-have.** Inactive slides get `inert` and clones get `aria-hidden`, interactive elements need visible `:focus-visible`, touch targets are ≥ 24 px, and `aria-live` is quiet during autoplay. E2E axe checks and Lighthouse (a11y = 100) fail CI otherwise.
 13. **Visually hidden text needs a positioned ancestor** inside scrollers. A stray `.visually-hidden` once widened the mobile layout viewport (see `.ring { position: relative }`). Keep hidden spans adjacent, without whitespace, when they complete an accessible name.
 
-## 7. Conventions
+## 7. Conventions (project-specific)
 
 - **House style applies** (last section): Prettier 120 columns without bracket spacing, sorted imports, explicit `public`/`protected`/`private` on every member.
 - **Angular style:** standalone components, `inject()` rather than constructor DI, `input()`/`output()`/`viewChild()`, signals and `computed`, `effect` only for side effects (with `untracked` for writes), new control flow (`@if`/`@for`/`@switch`). **No explicit `changeDetection: OnPush`** (the v22 default). Host listeners go in the `host: {}` metadata.
@@ -236,7 +236,7 @@ These are the non-obvious rules. Each one exists because breaking it caused, or 
 
 **Add an E2E test.** Put it in `e2e/*.spec.ts`, call `useFixtureData`, wait with `expectStory` or role-based locators, and prefer `getByRole` with `exact: true` when names overlap (for example "Playground" vs "Open the playground").
 
-## 10. CI/CD (`.github/workflows/ci.yml`)
+## 10. CI/CD
 
 | Job                      | Runs                                                                             | Notes                                           |
 | ------------------------ | -------------------------------------------------------------------------------- | ----------------------------------------------- |
@@ -276,7 +276,7 @@ These are the non-obvious rules. Each one exists because breaking it caused, or 
 
 ## House style (identical in every repository of this portfolio)
 
-These five repositories are written as one body of work: [cosmos-stories](https://github.com/stiutin/cosmos-stories), [larder](https://github.com/stiutin/larder), [pixi-neon-district](https://github.com/stiutin/pixi-neon-district), [threejs-solar-system](https://github.com/stiutin/threejs-solar-system) and [threejs-icosphere](https://github.com/stiutin/threejs-icosphere). Keep them alike. When a convention changes, change it everywhere.
+These six repositories are written as one body of work: [cosmos-stories](https://github.com/stiutin/cosmos-stories), [larder](https://github.com/stiutin/larder), [livery](https://github.com/stiutin/livery), [pixi-neon-district](https://github.com/stiutin/pixi-neon-district), [threejs-solar-system](https://github.com/stiutin/threejs-solar-system) and [threejs-icosphere](https://github.com/stiutin/threejs-icosphere). Keep them alike. When a convention changes, change it everywhere.
 
 **Shared files.** `LICENSE` (MIT, Serge Tiutin), `.editorconfig`, `.gitattributes`, `.nvmrc` (`24`), `.prettierrc`, `.prettierignore`, `.gitignore`, `.vscode/`, `.github/dependabot.yml` and the issue and PR templates are identical across the repositories, apart from a clearly marked `# Project` block at the end of the ignore files.
 
@@ -285,11 +285,11 @@ These five repositories are written as one body of work: [cosmos-stories](https:
 **Linting.** `eslint.config.mjs` with `defineConfig`, and two shared blocks:
 
 - `HOUSE_RULES`: sorted imports and exports (`simple-import-sort`), no unused imports, `curly: all`, arrow bodies only where needed, no `console` except `warn` and `error`;
-- `HOUSE_TS_RULES` in TypeScript projects: explicit `public`/`protected`/`private` on every class member (never on constructors), `T[]` rather than `Array<T>`, and unused variables allowed only as `_`.
+- `HOUSE_TS_RULES` in TypeScript projects: explicit `public`/`protected`/`private` on every class member (never on constructors), explicit return types on every exported function, no `any`, `T[]` rather than `Array<T>`, and unused variables allowed only with a leading `_`.
 
-`eslint-config-prettier` comes last. Each project adds its own strictness on top: `typescript-eslint` strict-type-checked in cosmos-stories and pixi-neon-district, Larder's own rule set (magic numbers, naming, member ordering, RxJS) in larder. Styles are linted by Stylelint with properties in alphabetical order; `-webkit-backdrop-filter` and `-webkit-user-select` stay, for Safari.
+`eslint-config-prettier` comes last. Each project adds its own strictness on top: `typescript-eslint` strict-type-checked in cosmos-stories, livery and pixi-neon-district (livery adds the React hooks and Fast Refresh rules), Larder's own rule set (magic numbers, naming, member ordering, RxJS) in larder. Styles are linted by Stylelint with properties in alphabetical order; `-webkit-backdrop-filter` and `-webkit-user-select` stay, for Safari.
 
-**`package.json`.** The field order is name, version, description, license, author, repository, homepage, keywords, private, type, engines, scripts, dependencies, devDependencies. Dependencies are sorted, and `engines.node` is `>=22.22.3`. Scripts use the same names everywhere:
+**`package.json`.** The field order is name, version, description, license, author, repository, homepage, keywords, private, type, engines, workspaces (in monorepos), scripts, dependencies, devDependencies. Dependencies are sorted, and `engines.node` is `>=22.22.3`. Scripts use the same names everywhere:
 
 | Script                                       | Meaning                                                                   |
 | -------------------------------------------- | ------------------------------------------------------------------------- |
@@ -310,8 +310,23 @@ These five repositories are written as one body of work: [cosmos-stories](https:
 
 **Tests.** Every project has Playwright tests against its production build, on a desktop and a Pixel 7 viewport, served the way GitHub Pages serves it. `CHROMIUM_PATH` points Playwright and the screenshot scripts at a specific browser binary (useful in sandboxes). Projects with logic worth isolating also have Vitest unit tests.
 
-**CI.** `.github/workflows/ci.yml` with the same job names: _Lint and types_, _Unit tests_, _Build_, _End-to-end (Playwright)_, _Lighthouse_ (Angular projects), _Deploy to GitHub Pages_. It runs on `ubuntu-24.04`, reads the Node version from `.nvmrc`, and uses the same action versions everywhere. Deploys go from `master` only, and only after the gates pass. The header of the workflow lists the one-time repository settings; the `github-pages` environment must allow `master`.
+**CI.** `.github/workflows/ci.yml` with the same job names: _Lint and types_, _Unit tests_, _Build_, _End-to-end (Playwright)_, _Lighthouse_ (Angular projects and livery), _Visual regression_ (livery, in the Playwright container), _Deploy to GitHub Pages_. It runs on `ubuntu-24.04`, reads the Node version from `.nvmrc`, and uses the same action versions everywhere. Deploys go from `master` only, and only after the gates pass. The header of the workflow lists the one-time repository settings; the `github-pages` environment must allow `master`.
 
-**Documentation.** The README follows one outline: title, one line, a paragraph, **Open the live demo**, screenshots, then _Features_, _Tech stack_, _How it works_, _Testing_ (a table), _Project structure_, _Running locally_, _Deployment_, _Roadmap_, _License_, _Author_. The voice is calm and specific, in British English, with no badges and no marketing adjectives. Explain _why_ in prose. There is no CHANGELOG and no ADR folder: decisions live in _How it works_ and in this file. `.github/social-preview.png` (1280×640) is the repository's social preview, and every project uses the same design.
+**Documentation.** The README follows one outline: title, one line, a paragraph, **Open the live demo**, screenshots, then _Features_, _Tech stack_, _How it works_, _Testing_ (a table), _Project structure_, _Running locally_, _Deployment_, _Roadmap_, _Credits_ (only where the project uses other people's content), _License_, _Author_. The roadmap lists only what comes next; what is done is described in the sections above it. The voice is calm and specific, in British English, with no badges and no marketing adjectives. Explain _why_ in prose. `CLAUDE.md` follows one outline too: 1. What this is, 2. Toolchain, 3. Commands, 4. Repository map, 5. Architecture, 6. Invariants - do not break, 7. Conventions (project-specific), 8. Testing guide, 9. Recipes, 10. CI/CD, 11. Troubleshooting, 12. Known limitations, then this section, word for word. Both describe the project as it is, not how it got there. There is no CHANGELOG and no ADR folder: decisions live in _How it works_ and in this file. `.github/social-preview.png` (1280×640) is the repository's social preview, and every project uses the same design.
 
-**Scripts and tooling.** Node scripts are `.mjs`. TypeScript scripts run through Node's type stripping, and are used only when they share code with the app (cosmos-stories). Scripts have a header comment with usage examples.
+**Scripts and tooling.** Node scripts are `.mjs`. TypeScript scripts run through Node's type stripping, and are used only when they share code with the app (cosmos-stories, livery). Scripts have a header comment with usage examples.
+
+### Code style
+
+The rules every change follows, in every language of the portfolio. The list grows: add a rule here, in every repository at once.
+
+1. **Comments are meaningful.** A comment says why the code is the way it is, or what a reader could not know from the code: a browser quirk, a spec, a trade-off. When the code already says what it does, it needs no comment.
+2. **Names explain themselves.** A variable, a function or a type is named after what it is for (`unpaidInvoices`, `formatMoney`, `TenantRouteData`), so its role is clear without a comment. No abbreviations beyond the common ones (`id`, `url`, `i18n`).
+3. **Return early.** Handle the invalid, empty and error cases first and leave the function; the main path then reads without nesting. No `else` after a `return`.
+4. **One function, one job.** A function does one thing, and its name says which. When a name needs "and", or a block needs a comment to say what it does, it becomes a function of its own.
+
+**TypeScript.**
+
+- Strict mode is on everywhere, with the extra flags listed above.
+- Never use `any`. Use `unknown` for a value whose type is not known yet, and narrow it with a check or a type guard. `no-explicit-any` enforces it.
+- Every exported function states its return type, and so does every API route handler, loader and action. `explicit-module-boundary-types` enforces it; an inferred type is fine for local functions.

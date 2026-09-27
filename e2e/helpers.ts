@@ -1,7 +1,7 @@
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
 
-import type {Page} from '@playwright/test';
+import type {Locator, Page} from '@playwright/test';
 import {expect} from '@playwright/test';
 
 const FIXTURE = readFileSync(join(import.meta.dirname, 'fixtures', 'apod.json'), 'utf8');
@@ -67,8 +67,8 @@ export async function swipe(page: Page, from: Point, to: Point, steps = 8): Prom
   await pointerUp(page, to);
 }
 
-export const activeTitle = (page: Page) => page.locator('.face--active .face__title');
-export const player = (page: Page) => page.getByRole('dialog');
+export const activeTitle = (page: Page): Locator => page.locator('.face--active .face__title');
+export const player = (page: Page): Locator => page.getByRole('dialog');
 
 export async function expectStory(page: Page, group: string, title: string): Promise<void> {
   await expect(player(page)).toHaveAttribute('aria-label', `Stories: ${group}`);
